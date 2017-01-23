@@ -1,0 +1,27 @@
+#if($page > 1)
+	#set($prevIdx = $startPage - $indexSize)
+	#if($prevIdx < 0)
+		#set($prevIdx = $startPage)
+	#end
+	<a href="javascript:common.setPaging($prevIdx)"><u>&lt;&lt;</u></a>
+	#set($prevIdx = $page - 1)
+	<a href="javascript:common.setPaging($prevIdx)"><u>&lt;</u></a>
+#end
+#foreach( $idx in [$startPage..$endPage] )
+	#if($idx != $page)
+		<a href="javascript:common.setPaging($idx)"><u>$idx</u></a>
+	#else
+		<b>$idx</b>
+	#end
+#end
+#if($page < $totalPage)
+	#set($nextIdx = $page + 1)
+	<a href="javascript:common.setPaging($nextIdx)"><u>&gt;</u></a>
+	#set($nextIdx = $page + $indexSize)
+	#if($totalPage > $endPage)
+		#set($nextIdx = $endPage+1)
+	   <a href="javascript:common.setPaging($nextIdx)"><u>&gt;&gt;</u></a>
+	#else
+       <a href="javascript:common.setPaging($endPage)"><u>&gt;&gt;</u></a>
+    #end
+#end

@@ -1,0 +1,163 @@
+<%@ page language="java" contentType="text/css; charset=UTF-8" pageEncoding="UTF-8"%>
+@charset "UTF-8";
+
+/* klb_btn01 */
+.klb_btn01_1row a {display:inline-block; color:#fff; font-weight:bold; font-size:20px; text-align:center;
+				   background:url('../images/btn_s11.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn01_1row a span {display:inline-block; color:#fff; padding:11px 23px 12px 25px; letter-spacing:2px;
+						background:url('../images/btn_s12.gif') no-repeat right top;}
+.klb_btn01_1row a:hover {color:#fff; background:url('../images/btn_s11_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn01_1row a:hover span {background:url('../images/btn_s12_over.gif') no-repeat right top;}
+
+.klb_btn01_2row a {display:inline-block; color:#f0f0f0; font-size:14px; line-height:120%; text-align:center;
+				   background:url('../images/btn_s11.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn01_2row a span {display:inline-block; color:#f0f0f0; padding:5px 23px 9px 25px; letter-spacing:2px;
+						background:url('../images/btn_s12.gif') no-repeat right top;}
+.klb_btn01_2row strong {color:#fff; font-size:18px;}
+.klb_btn01_2row a:hover {color:#f0f0f0; background:url('../images/btn_s11_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn01_2row a:hover span {background:url('../images/btn_s12_over.gif') no-repeat right top;}
+
+
+/* klb_btn02 */
+.klb_btn02_1row a {display:inline-block; color:#0b477f; font-size:18px; line-height:150%; text-align:center;
+            background:url('../images/btn_s21.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn02_1row a span {display:inline-block; padding:3px 15px 5px 17px; letter-spacing:2px; background:url('../images/btn_s22.gif') no-repeat right top;}
+.klb_btn02_1row a:hover {background:url('../images/btn_s21_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn02_1row a:hover span {background:url('../images/btn_s22_over.gif') no-repeat right top;}
+
+
+/* klb_btn03 */
+.klb_btn03_1row a {display:inline-block; color:#999999; font-weight:bold; font-size:20px; text-align:center;
+				   background:url('../images/btn_s31.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn03_1row a span {display:inline-block; color:#999999; padding:11px 23px 12px 25px; letter-spacing:2px;
+						background:url('../images/btn_s32.gif') no-repeat right top;}
+.klb_btn03_1row a:hover {color:#fff; background:url('../images/btn_s31_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn03_1row a:hover span {color:#fff; background:url('../images/btn_s32_over.gif') no-repeat right top;}
+
+.klb_btn03_2row a {display:inline-block; color:#999999; font-size:14px; line-height:120%; text-align:center;
+				   background:url('../images/btn_s31.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn03_2row a span {display:inline-block; color:#999999; padding:5px 23px 9px 25px; letter-spacing:2px;
+						background:url('../images/btn_s32.gif') no-repeat right top;}
+.klb_btn03_2row strong {color:#999999; font-size:18px;}
+.klb_btn03_2row a:hover {color:#fff; background:url('../images/btn_s31_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn03_2row a:hover span {color:#fff; background:url('../images/btn_s32_over.gif') no-repeat right top;}
+.klb_btn03_2row a:hover strong {color:#fff;}
+
+
+/* klb_btn04 */
+.klb_btn04_1row a {display:inline-block; color:#0b477f; font-weight:bold; font-size:20px; text-align:center;
+				   background:url('../images/btn_s41.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn04_1row a span {display:inline-block; color:#0b477f; padding:11px 23px 12px 25px; letter-spacing:2px;
+						background:url('../images/btn_s42.gif') no-repeat right top;}
+.klb_btn04_1row a:hover {color:#0b477f; background:url('../images/btn_s41_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn04_1row a:hover span {background:url('../images/btn_s42_over.gif') no-repeat right top;}
+
+.klb_btn04_2row a {display:inline-block; color:#0b477f; font-size:14px; line-height:120%; text-align:center;
+				   background:url('../images/btn_s41.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn04_2row a span {display:inline-block; color:#0b477f; padding:5px 20px 7px 25px; letter-spacing:2px;
+						background:url('../images/btn_s42.gif') no-repeat right top;}
+.klb_btn04_2row strong {color:#0b477f; font-size:18px;}
+.klb_btn04_2row a:hover {color:#0b477f; background:url('../images/btn_s41_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn04_2row a:hover span {background:url('../images/btn_s42_over.gif') no-repeat right top;}
+
+
+/* klb_btn05 */
+.klb_btn05_1row a {display:inline-block; color:#6a6a6a; font-weight:bold; font-size:20px; text-align:center;
+				   background:url('../images/btn_s51.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn05_1row a span {display:inline-block; color:#6a6a6a; padding:11px 23px 12px 25px; letter-spacing:2px;
+						background:url('../images/btn_s52.gif') no-repeat right top;}
+.klb_btn05_1row a:hover {color:#6a6a6a; background:url('../images/btn_s51_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn05_1row a:hover span {background:url('../images/btn_s52_over.gif') no-repeat right top;}
+
+.klb_btn05_2row a {display:inline-block; color:#6a6a6a; font-size:14px; line-height:120%; text-align:center;
+				   background:url('../images/btn_s51.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn05_2row a span {display:inline-block; color:#6a6a6a; padding:5px 23px 9px 25px; letter-spacing:2px;
+						background:url('../images/btn_s52.gif') no-repeat right top;}
+.klb_btn05_2row strong {color:#6a6a6a; font-size:18px;}
+.klb_btn05_2row a:hover {color:#6a6a6a; background:url('../images/btn_s51_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn05_2row a:hover span {background:url('../images/btn_s52_over.gif') no-repeat right top;}
+
+
+/* klb_btn06 */
+.klb_btn06_1row a {display:inline-block; color:#0b477f; font-weight:bold; font-size:20px; text-align:center;
+				   background:url('../images/btn_s61.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn06_1row a span {display:inline-block; color:#0b477f; padding:11px 23px 12px 25px; letter-spacing:2px;
+						background:url('../images/btn_s62.gif') no-repeat right top;}
+.klb_btn06_1row a:hover {color:#0b477f; background:url('../images/btn_s61_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn06_1row a:hover span {background:url('../images/btn_s62_over.gif') no-repeat right top;}
+
+.klb_btn06_2row a {display:inline-block; color:#0b477f; font-size:14px; line-height:120%; text-align:center;
+				   background:url('../images/btn_s61.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn06_2row a span {display:inline-block; color:#0b477f; padding:5px 23px 9px 25px; letter-spacing:2px;
+						background:url('../images/btn_s62.gif') no-repeat right top;}
+.klb_btn06_2row strong {color:#0b477f; font-size:18px;}
+.klb_btn06_2row a:hover {color:#0b477f; background:url('../images/btn_s61_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn06_2row a:hover span {background:url('../images/btn_s62_over.gif') no-repeat right top;}
+
+
+/* klb_btn07 */
+.klb_btn07_1row a {display:inline-block; color:#2f3030; font-weight:bold; font-size:20px; text-align:center;
+				   background:url('../images/btn_s71.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn07_1row a span {display:inline-block; color:#2f3030; padding:11px 23px 12px 25px; letter-spacing:2px;
+						background:url('../images/btn_s72.gif') no-repeat right top;}
+.klb_btn07_1row a:hover {color:#2f3030; background:url('../images/btn_s71_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn07_1row a:hover span {background:url('../images/btn_s72_over.gif') no-repeat right top;}
+
+.klb_btn07_2row a {display:inline-block; color:#2f3030; font-size:14px; line-height:120%; text-align:center;
+				   background:url('../images/btn_s71.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn07_2row a span {display:inline-block; color:#2f3030; padding:5px 23px 9px 25px; letter-spacing:2px;
+						background:url('../images/btn_s72.gif') no-repeat right top;}
+.klb_btn07_2row strong {color:#2f3030; font-size:18px;}
+.klb_btn07_2row a:hover {color:#2f3030; background:url('../images/btn_s71_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn07_2row a:hover span {background:url('../images/btn_s72_over.gif') no-repeat right top;}
+
+
+/* klb_btn08 */
+.klb_btn08_1row a {display:inline-block; color:#2a4904; font-weight:bold; font-size:20px; text-align:center;
+				   background:url('../images/btn_s81.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn08_1row a span {display:inline-block; color:#2a4904; padding:11px 23px 12px 25px; letter-spacing:2px;
+						background:url('../images/btn_s82.gif') no-repeat right top;}
+.klb_btn08_1row a:hover {color:#2a4904; background:url('../images/btn_s81_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn08_1row a:hover span {background:url('../images/btn_s82_over.gif') no-repeat right top;}
+
+.klb_btn08_2row a {display:inline-block; color:#2a4904; font-size:14px; line-height:120%; text-align:center;
+				   background:url('../images/btn_s81.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn08_2row a span {display:inline-block; color:#2a4904; padding:5px 23px 9px 25px; letter-spacing:2px;
+						background:url('../images/btn_s82.gif') no-repeat right top;}
+.klb_btn08_2row strong {color:#2a4904; font-size:18px;}
+.klb_btn08_2row a:hover {color:#2a4904; background:url('../images/btn_s81_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn08_2row a:hover span {background:url('../images/btn_s82_over.gif') no-repeat right top;}
+
+
+/* klb_btn09 */
+.klb_btn09_1row a {display:inline-block; color:#3d3d3d; font-weight:bold; font-size:20px; text-align:center;
+				   background:url('../images/btn_s91.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn09_1row a span {display:inline-block; color:#3d3d3d; padding:11px 23px 12px 25px; letter-spacing:2px;
+						background:url('../images/btn_s92.gif') no-repeat right top;}
+.klb_btn09_1row a:hover {color:#3d3d3d; background:url('../images/btn_s91_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn09_1row a:hover span {background:url('../images/btn_s92_over.gif') no-repeat right top;}
+
+.klb_btn09_2row a {display:inline-block; color:#3d3d3d; font-size:14px; line-height:120%; text-align:center;
+				   background:url('../images/btn_s91.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn09_2row a span {display:inline-block; color:#3d3d3d; padding:5px 23px 9px 25px; letter-spacing:2px;
+						background:url('../images/btn_s92.gif') no-repeat right top;}
+.klb_btn09_2row strong {color:#3d3d3d; font-size:18px;}
+.klb_btn09_2row a:hover {color:#3d3d3d; background:url('../images/btn_s91_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn09_2row a:hover span {background:url('../images/btn_s92_over.gif') no-repeat right top;}
+
+
+/* klb_btn10 */
+.klb_btn10_1row a {display:inline-block; color:#010000; font-weight:bold; font-size:20px; text-align:center;
+				   background:url('../images/btn_s101.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn10_1row a span {display:inline-block; color:#010000; padding:11px 23px 12px 25px; letter-spacing:2px;
+						background:url('../images/btn_s102.gif') no-repeat right top;}
+.klb_btn10_1row a:hover {color:#010000; background:url('../images/btn_s101_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn10_1row a:hover span {background:url('../images/btn_s102_over.gif') no-repeat right top;}
+
+.klb_btn10_2row a {display:inline-block; color:#010000; font-size:14px; line-height:120%; text-align:center;
+				   background:url('../images/btn_s101.gif') no-repeat left top; cursor:hand; text-decoration:none;}
+.klb_btn10_2row a span {display:inline-block; color:#010000; padding:5px 23px 9px 25px; letter-spacing:2px;
+						background:url('../images/btn_s102.gif') no-repeat right top;}
+.klb_btn10_2row strong {color:#010000; font-size:18px;}
+.klb_btn10_2row a:hover {color:#010000; background:url('../images/btn_s101_over.gif') no-repeat left top; text-decoration:none;}
+.klb_btn10_2row a:hover span {background:url('../images/btn_s102_over.gif') no-repeat right top;}

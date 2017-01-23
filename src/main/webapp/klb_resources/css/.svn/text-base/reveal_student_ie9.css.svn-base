@@ -1,0 +1,41 @@
+/*	--------------------------------------------------
+	Reveal Modals
+	-------------------------------------------------- */
+		
+/*	IE9
+============================================================================ */
+
+.ie9 .button_cancel.close-reveal-modal {
+	-pie-background:linear-gradient(top, #c0c0c0 0%, #a1a1a1 100%);
+	-ms-border-radius:50px;
+	border-radius:50px;
+}
+
+.ie9 .button_cancel:hover,
+.ie9 .button_cancel:active {
+	-pie-background:linear-gradient(top, #a1a1a1 0%, #c0c0c0 100%);
+}
+
+.ie9 .button_cancel.close-reveal-modal {
+	-pie-background:linear-gradient(top, #ffffff 0%, #a1a1a1 100%);
+	-ms-border-radius:50px;
+	border-radius:50px;
+}
+.ie9 .button_sample.close-reveal-modal,
+.ie9 .button_test.close-reveal-modal,
+.ie9 .button_temporary.close-reveal-modal,
+.ie9 .button_nextq.close-reveal-modal {
+	-pie-background:linear-gradient(top, #ffa540 0%, #ff8f11 100%);
+	-ms-border-radius:50px;
+	border-radius:50px;
+}
+.ie9 .button_sample:hover,
+.ie9 .button_sample:active,
+.ie9 .button_test:hover,
+.ie9 .button_test:active,
+.ie9 .button_temporary:hover,
+.ie9 .button_temporary:active,
+.ie9 .button_nextq:hover,
+.ie9 .button_nextq:active {
+	-pie-background:linear-gradient(top, #ff8f11 0%, #ffa540 100%);
+}

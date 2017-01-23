@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="userDetails">
+
+
+	<select id="selectUserDetailsByLoginId" parameterClass="Map" resultClass="HashMap" >
+	<![CDATA[
+		/* userDetails.selectUserDetailsByLoginId, */
+	]]>
+
+		SELECT
+			 #USER_ID# AS LOGIN_ID
+			,NAME AS USER_NM
+			,USER_TYPE
+			,AID
+ 			,SCHOOL_ID AS SCH_CD
+ 			,SCHOOL_ID
+			,SCHOOL_NAME
+			,(SELECT SCHOOL_TYPE FROM SCHOOL WHERE SCHOOL_ID = A.SCHOOL_ID AND TO_CHAR(SYSDATE, 'YYYY/MM/DD') BETWEEN START_DATE AND END_DATE) AS SCHOOL_TYPE
+			,GRADE_CODE
+			,GRADE_NAME
+			,GRADE_CLASS_ID
+			,CLASS_NAME
+			<isNotEmpty property="AID">
+			,(SELECT COUNT(*) FROM USER_VIEW WHERE AID = #AID#
+				AND SCHOOL_ID = #SCH_CD#
+				AND TO_CHAR(SYSDATE,'YYYY/MM/DD') BETWEEN START_DATE AND END_DATE
+			) AS SCHOOL_JOIN_CNT
+			</isNotEmpty>
+			<isEmpty property="AID">
+			,0 AS SCHOOL_JOIN_CNT
+			</isEmpty>
+			,AUTHORITY_CODE
+			,MAIL_ADDRESS
+		FROM
+			USER_VIEW A
+		WHERE
+			<isNotEmpty property="AID">
+			AID = #AID#
+			</isNotEmpty>
+			<isEmpty property="AID">
+			LOGIN_ID = #USER_ID#
+			</isEmpty>
+			<isNotEmpty property="SCH_CD">
+			AND SCHOOL_ID = #SCH_CD#
+			</isNotEmpty>
+			AND TO_CHAR(SYSDATE,'YYYY/MM/DD') BETWEEN START_DATE AND END_DATE
+			AND ROWNUM = 1
+	</select>
+
+	<select id="selectAffiliatedSchoolListBySchoolId" parameterClass="Object" resultClass="HashMap">
+	<![CDATA[
+		/* userDetails.selectAffiliatedSchoolListBySchoolId, */
+	]]>
+		SELECT
+ 			 SCHOOL_ID AS SCH_CD
+			,SCHOOL_NAME
+		FROM
+			USER_VIEW A
+		WHERE AID = #AID#
+		ORDER BY
+			SCHOOL_ID
+	</select>
+
+	<select id="selectSchoolDetail" parameterClass="Map" resultClass="HashMap">
+	<![CDATA[
+		/* userDetails.selectSchoolDetail, */
+	]]>
+		SELECT
+			A.SCHOOL_ID AS SCH_CD
+			,A.START_DATE
+			,A.END_DATE
+			,A.SCHOOL_CODE
+			,A.SCHOOL_NAME
+			,A.SCHOOL_NAME_KANA
+			,A.SCHOOL_ABBREVIATION
+			,A.SCHOOL_TYPE
+			,A.TIME_DIVISION
+			,A.NOTE
+			,A.ABOLITION_FLAG
+			,A.ENTRY_DIVISION
+			,A.SCHOOL_CODE
+			,A.SCHOOL_TYPE
+	        ,A.FOUNDATION_DIVISION
+		FROM
+			SCHOOL A
+		WHERE
+			A.SCHOOL_ID = #SCH_CD#
+			<![CDATA[
+			AND A.START_DATE <= TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+			AND DECODE(A.END_DATE, '9999/99/99', TO_CHAR(SYSDATE, 'YYYY/MM/DD'), A.END_DATE) >= TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+			]]>
+			AND ROWNUM = 1
+	</select>
+
+	<select id="selectUserAid" parameterClass="Map" resultClass="String">
+	<![CDATA[
+		/* userDetails.selectUserAid, */
+	]]>
+		SELECT
+			AID
+		FROM
+			USER_VIEW
+		WHERE
+			LOGIN_ID = #USER_ID#
+	</select>
+
+	<select id="selectUserDetailsByAidAndSchoolId" parameterClass="Map" resultClass="HashMap" >
+	<![CDATA[
+		/* userDetails.selectUserDetailsByAidAndSchoolId, */
+	]]>
+		SELECT
+			#USER_ID# AS LOGIN_ID
+			,NAME AS USER_NM
+			,USER_TYPE
+			,AID
+ 			,SCHOOL_ID AS SCH_CD
+ 			,SCHOOL_ID
+			,SCHOOL_NAME
+			,(SELECT SCHOOL_TYPE FROM SCHOOL WHERE SCHOOL_ID = UV.SCHOOL_ID AND TO_CHAR(SYSDATE, 'YYYY/MM/DD') BETWEEN START_DATE AND END_DATE) AS SCHOOL_TYPE
+			,GRADE_CODE
+			,GRADE_NAME
+			,GRADE_CLASS_ID
+			,CLASS_NAME
+			,AUTHORITY_CODE
+			,MAIL_ADDRESS
+		FROM USER_VIEW UV
+		WHERE
+			UV.AID = ( SELECT DISTINCT A.AID FROM USER_VIEW A
+					WHERE A.LOGIN_ID = #USER_ID# )
+			AND UV.SCHOOL_ID = #SCH_CD#
+			AND TO_CHAR(SYSDATE, 'YYYY/MM/DD') BETWEEN UV.START_DATE AND UV.END_DATE
+	</select>
+
+</sqlMap>

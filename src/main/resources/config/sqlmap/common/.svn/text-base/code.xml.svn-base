@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="code">
+
+	<select id="getCode" parameterClass="Map" resultClass="HashMap">
+	<![CDATA[
+		/* code.getCode */
+	]]>
+		SELECT
+				CODE_ID
+			,	CODE
+			,	ITEM1
+			,	ITEM2
+			,	ITEM3
+			,	DISPLAY_ORDER
+		FROM
+				KLB_CODE_MASTER
+		WHERE
+				CODE_ID = #CODE_ID#
+			AND	DEL_FLG = '0'
+		ORDER BY
+				DISPLAY_ORDER
+	</select>
+
+	<select id="selectCodeMasterList" parameterClass="Map" resultClass="HashMap">
+		SELECT	/* code.selectCodeMasterList */
+					CODE_ID
+				,	CODE
+				,	ITEM1
+				,	ITEM2
+				,	ITEM3
+				,	DISPLAY_ORDER
+		FROM		CODE_MASTER
+		WHERE	CODE_ID = #CODE_ID#
+		<isNotEmpty property="CODE">
+				<iterate property="CODE" conjunction="," open="AND CODE IN ("
+					close=")">
+					#CODE[]#
+				</iterate>
+			</isNotEmpty>
+		ORDER BY DISPLAY_ORDER
+	</select>
+
+	<select id="getGradeCode" parameterClass="Map" resultClass="HashMap">
+	<![CDATA[
+		/* code.getGradeCode */
+	]]>
+		SELECT
+				a.CODE_ID
+			,	a.CODE
+			,	SUBSTR(b.ITEM1,1,1) || a.ITEM1  as ITEM1
+			,	a.ITEM2
+			,	b.ITEM1 || a.ITEM1  as ITEM3
+			,	a.DISPLAY_ORDER
+		FROM
+				CODE_MASTER  a
+			,	CODE_MASTER  b
+		WHERE
+				a.CODE_ID  = '0018'
+			AND a.CODE    != '99'
+			AND b.CODE_ID  = '0002'
+			AND b.CODE     = a.ITEM2
+		ORDER BY
+				DISPLAY_ORDER
+	</select>
+
+		<select id="selectCodeByCodeIdAndCode" parameterClass="Map" resultClass="HashMap">
+	<![CDATA[
+		/* code.getCode */
+	]]>
+		SELECT
+				CODE_ID
+			,	CODE
+			,	ITEM1
+			,	ITEM2
+			,	ITEM3
+			,	DISPLAY_ORDER
+		FROM
+				KLB_CODE_MASTER
+		WHERE
+			CODE_ID = #CODE_ID#
+			AND CODE = #CODE#
+			AND	DEL_FLG = '0'
+	</select>
+
+</sqlMap>

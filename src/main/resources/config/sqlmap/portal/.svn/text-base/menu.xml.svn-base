@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="menu">
+
+	<select id="selectAfrsMenuList" parameterClass="Map" resultClass="HashMap">
+		SELECT DISTINCT
+		   a.MENU_LARGE_ID
+		  ,b.MENU_MIDDLE_ID
+		  ,a.SYSTEM_DIVISION
+		  ,a.MENU_NAME AS MENU_NAME_LARGE
+		  ,b.MENU_NAME AS MENU_NAME_MIDDLE
+		  ,a.DISPLAY_ORDER
+		  ,b.DISPLAY_ORDER
+		  ,(SELECT COUNT(*) FROM TKS_MYMENU WHERE MENU_ID=a.MENU_LARGE_ID AND MENU2_ID=b.MENU_MIDDLE_ID AND LOGIN_ID=#USER_ID# AND ROWNUM=1) AS CHECKED_STATUS
+		FROM 
+		  MENU_LARGE a
+		  LEFT JOIN MENU_MIDDLE b on a.MENU_LARGE_ID = b.MENU_LARGE_ID
+		  LEFT JOIN MENU_AUTHORITY c on a.MENU_LARGE_ID = c.MENU_LARGE_ID AND b.MENU_MIDDLE_ID = c.MENU_MIDDLE_ID
+		  LEFT JOIN MENU_GROUP_AFFILIATION d on c.MENU_GROUP_ID = d.MENU_GROUP_ID
+		WHERE
+		  a.SYSTEM_DIVISION = '00'
+		  AND d.STAFF_ID = #AID#
+		  AND TO_CHAR(SYSDATE,'YYYY/MM/DD') BETWEEN d.START_DATE AND d.END_DATE
+		ORDER BY
+		  a.DISPLAY_ORDER , b.DISPLAY_ORDER		
+	</select>
+
+	<select id="selectMenuList" parameterClass="Map" resultClass="HashMap">
+		SELECT DISTINCT
+			TM.PRFC_CD
+			,TM.SYS_DIV
+			,TM.MENU_ID
+			,TM.PST_DIV
+			,TM.TITLE
+			,TM.PROG_URL
+			,CASE WHEN (SELECT MENU_ID FROM TKS_MYMENU TMM  WHERE PRFC_CD = #PRFC_CD# AND LOGIN_ID = #USER_ID# AND TMM.MENU_ID = TM.MENU_ID) IS NOT NULL THEN 1 ELSE 0 END EXISTS_MENU
+		FROM
+			TKS_MENU TM, TKS_AUTH TA
+		WHERE
+			TM.PRFC_CD = #PRFC_CD#
+		AND TM.PRFC_CD = TA.PRFC_CD
+		AND TM.MENU_ID = TA.MENU_ID
+		AND TA.USE_YN = 'Y'		
+		AND TA.NW = #AUTH_NW#
+		AND TA.SYSIND_YN = #AUTH_SYSIND_YN#
+		AND TA.AUTH_YN = #AUTH_YN#
+		AND TA.USER_DIV = #AUTH_USER_DIV#
+<!-- 
+		AND TA.SYS_DIV = #AUTH_SYS_DIV#
+ -->		
+		<isNotEmpty property="PST_DIV">
+			AND TM.PST_DIV = #PST_DIV#
+		</isNotEmpty>
+		AND TM.EXM_YN = 'Y'		
+		ORDER BY TM.MENU_ID NULLS LAST
+	</select>
+	
+	<select id="selectLeftMenuList" parameterClass="Map" resultClass="HashMap">
+		SELECT DISTINCT
+		    TM.PRFC_CD
+		    ,TM.SYS_DIV
+		    ,TM.MENU_ID
+		    ,TM.PST_DIV
+		    ,TM.TITLE
+		    ,TM.PROG_URL
+		FROM
+		    TKS_MENU TM, TKS_AUTH TA
+		WHERE TM.PRFC_CD = #PRFC_CD#
+		AND TM.PRFC_CD = TA.PRFC_CD
+		AND TM.SYS_DIV = TA.SYS_DIV
+		AND TM.MENU_ID = TA.MENU_ID
+		AND TA.USE_YN = 'Y'		
+		AND TA.NW = #AUTH_NW#
+		AND TA.SYSIND_YN = #AUTH_SYSIND_YN#
+		AND TA.AUTH_YN = #AUTH_YN#
+		AND TA.USER_DIV = #AUTH_USER_DIV#
+		<isNotEmpty property="PST_DIV">
+		AND TM.PST_DIV = #PST_DIV#
+		</isNotEmpty>
+		AND TM.EXM_YN = 'Y'				
+		ORDER BY TM.MENU_ID
+	</select>
+
+	<select id="selectTopMenuList" parameterClass="Map" resultClass="HashMap">
+		SELECT
+			PRFC_CD
+			,SYS_DIV
+			,MENU_ID
+			,PST_DIV
+			,TITLE
+			,PROG_URL
+		FROM
+			TKS_MENU
+		WHERE PRFC_CD = #PRFC_CD#
+		<isNotEmpty property="PST_DIV">
+		AND PST_DIV = #PST_DIV#
+		</isNotEmpty>
+		ORDER BY MENU_ID
+	</select>
+	
+	
+
+</sqlMap>

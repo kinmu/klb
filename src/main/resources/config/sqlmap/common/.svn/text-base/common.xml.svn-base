@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="common">
+	
+	<select id="selectSequenceBySequenceName" parameterClass="String" resultClass="Integer">
+		SELECT $SEQUENCE_NAME$.NEXTVAL FROM DUAL
+	</select>
+
+	<!-- For Pagination -->
+	<sql id="beforePaginatedList">
+		SELECT * FROM (
+			SELECT ROWNUM AS RNUM, NONPAGINATEDLIST.* FROM (
+				SELECT * FROM (
+	</sql> 
+	
+	<!-- @param T_SORT_BY is escaped at ParameterEscaper.java -->
+    <sql id="afterPaginatedList">
+    			)
+    	<isNotEmpty property="T_SORT_BY">
+    		<isNotEqual property="T_SORT_BY" compareValue="null">
+    			ORDER BY $T_SORT_BY$
+    			<isEqual property="T_ORD_COND" compareValue="DESC">
+    				DESC
+    			</isEqual>
+    		</isNotEqual>
+    	</isNotEmpty>
+    	<![CDATA[
+    			) NONPAGINATEDLIST WHERE ROWNUM <= #endIdx#
+		) WHERE RNUM > #startIdx#
+		]]>    
+    </sql>
+
+	<!-- For Pagination Count-->
+    <sql id="beforeCountPaginatedList">
+    	SELECT COUNT(*) FROM (
+    </sql>
+    <sql id="afterCountPaginatedList">
+    	)
+    </sql>
+</sqlMap>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	<context:component-scan base-package="jp.go.saga" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<mvc:annotation-driven>
+		<mvc:message-converters register-defaults="true">
+			<bean class = "org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+				<property name="supportedMediaTypes" value = "text/plain;charset=UTF-8" />
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<mvc:resources mapping="/klb_resources/**"	location="/klb_resources/" />
+	<mvc:resources mapping="/klb/**" 			location="/klb_resources/" />
+	<mvc:resources mapping="/css/**" 			location="/klb_resources/css/" />
+	<mvc:resources mapping="/js/**" 			location="/klb_resources/js/" />
+	<mvc:resources mapping="/images/**" 		location="/klb_resources/images/" />
+<!-- 	<mvc:resources mapping="/favicon.ico" 	location="/klb_resources/images/" /> -->
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/views/klb/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<!-- file upload -->
+	<bean id="multipartResolver"  class="jp.go.saga.io.ModifiedCommonsMultipartResolver">
+		<property name="maxUploadSize" value="524288000"/> <!-- 500MB -->
+		<property name="defaultEncoding" value="UTF-8"/>
+		<property name="uploadTempDir" ref="uploadDirResource"/>
+	</bean>
+
+	<bean id="uploadDirResource" class="org.springframework.core.io.FileSystemResource">
+		<constructor-arg value="${upload.tmpPath}"/>
+	</bean>
+
+	<!-- filedownload -->
+	<bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
+	      	<property name="order" value="0"/>
+	</bean>
+
+	<bean id="fileDownloadView" class="jp.go.saga.common.view.FileDownloadView"/>
+
+	<!-- exceldownload -->
+	<bean id="JXLS_RESULT" class="jp.go.saga.common.view.ExcelView"/>
+
+	<!-- validate parameters & inject resources-->
+	<bean id="parameterAdvice" class="jp.go.saga.aspect.common.ParameterAdvice">
+		<property name="parameterInterceptors">
+			<list>
+				<bean class="jp.go.saga.aspect.request.XssPatternChecker"/>	<!-- XSS pattern checker -->
+				<bean class="jp.go.saga.aspect.request.FileExtChecker"/>	<!-- File Ext Security Adaptor -->
+				<bean class="jp.go.saga.aspect.request.UserInfoSetter"/>	<!-- User info setter on @RequestParam -->
+				<bean class="jp.go.saga.aspect.request.ParameterEscaper"/>	<!-- Injection Escaper -->
+			</list>
+		</property>
+	</bean>
+
+	<bean id="annotationBasedResourceInjector" class="jp.go.saga.aspect.common.AnnotationBasedResourceInjector"/>
+
+    <!-- requestBasedRoleProvider -->
+    <bean id="requestBasedRoleProvider" class="jp.go.saga.security.klb.RequestBasedRoleProvider"/>
+
+	<aop:config >
+		<!-- parameter advices -->
+		<aop:advisor advice-ref="parameterAdvice" pointcut="execution( * jp.go.saga..*Controller.*(..) )" order="5"/>
+		<aop:advisor advice-ref="requestBasedRoleProvider" pointcut="execution( * jp.go.saga..*Controller.*(..) )" order="6"/>
+		<aop:advisor advice-ref="annotationBasedResourceInjector" pointcut="execution( * jp.go.saga..*Controller.*(..) )" order="10"/>
+	</aop:config>
+
+	<!-- asyncResponseMap -->
+	<bean id="asyncResponseMap" class="jp.go.saga.common.AsyncResponseMap" scope="request">
+		<aop:scoped-proxy/>
+	</bean>
+
+<!-- 2015.01.06 jungsr delete
+	<mvc:interceptors>
+		<ref bean="lectureInfoInterceptor" />
+    </mvc:interceptors>
+
+    <bean id="lectureInfoInterceptor" class="jp.go.saga.aspect.common.LectureInfoInterceptor">
+		<property name="targetUrl">
+			<list>
+				<value>/onlinetest/teachPlanOnlineTest.do</value>
+				<value>/homework/teachPlanHomework.do</value>
+				<value>/forum/teachPlanForum.do</value>
+				<value>/teach/teachStartTeachingPlan.do</value>
+				<value>/notice/teachStartNotice.do</value>
+				<value>/qna/teachStartQna.do</value>
+			</list>
+		</property>
+		<property name="redirectUrl" value="/teach/teachPlanProcess.do" />
+	</bean>
+2015.01.06 jungsr delete -->
+
+	<bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<!-- 2015.02.20 jungsr delete
+				<prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">error/MaxUploadSizeExceededException</prop>
+				-->
+                <prop key="javax.security.sasl.AuthenticationException">error/AuthenticationException</prop>
+			</props>
+		</property>
+	</bean>
+
+
+</beans>

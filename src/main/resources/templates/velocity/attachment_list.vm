@@ -1,0 +1,4 @@
+#foreach ($file in $files)
+	<img src="${contextPath}/images/ico_disk.gif"/> <a href="${contextPath}/appcf/file/downloadAttachment.action?savedFileName=${file.savedFileName}&&fileName=${util.encodeURL(${file.fileName})}&&key=${file.relativeDir}">${file.fileName}</a><BR>
+#end
+

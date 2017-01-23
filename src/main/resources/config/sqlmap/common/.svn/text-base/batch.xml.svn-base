@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="batch">
+
+
+    <insert id="insertAnalyzeLogin" parameterClass="java.util.Map">
+	<![CDATA[
+		/* batch.insertAnalyzeLogin */
+	]]>
+		INSERT INTO
+				KLB_ANALYZE_LOGIN
+		SELECT
+				LOGIN_DATE
+			,	USER_TYPE
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'00',1,0))  as SUM_00
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'01',1,0))  as SUM_01
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'02',1,0))  as SUM_02
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'03',1,0))  as SUM_03
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'04',1,0))  as SUM_04
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'05',1,0))  as SUM_05
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'06',1,0))  as SUM_06
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'07',1,0))  as SUM_07
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'08',1,0))  as SUM_08
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'09',1,0))  as SUM_09
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'10',1,0))  as SUM_10
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'11',1,0))  as SUM_11
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'12',1,0))  as SUM_12
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'13',1,0))  as SUM_13
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'14',1,0))  as SUM_14
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'15',1,0))  as SUM_15
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'16',1,0))  as SUM_16
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'17',1,0))  as SUM_17
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'18',1,0))  as SUM_18
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'19',1,0))  as SUM_19
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'20',1,0))  as SUM_20
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'21',1,0))  as SUM_21
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'22',1,0))  as SUM_22
+			,	SUM(DECODE(SUBSTR(LOGIN_TIME,1,2),'23',1,0))  as SUM_23
+			,	COUNT(*)                                      as SUM_ALL
+			,	'SYSBATCH'
+			,	SYSTIMESTAMP
+			,	'SYSBATCH'
+			,	SYSTIMESTAMP
+		FROM
+				KLB_LOGIN_HISTORY
+		WHERE
+				LOGIN_DATE  = TO_CHAR(SYSDATE - 1, 'YYYYMMDD')
+			AND LOGIN_FLAG  = '1'
+		GROUP BY
+				LOGIN_DATE
+			,	USER_TYPE
+    </insert>
+
+
+    <delete id="deleteLoginHistory" parameterClass="java.util.Map">
+	<![CDATA[
+		/* batch.deleteLoginHistory */
+	]]>
+		DELETE FROM
+				KLB_LOGIN_HISTORY
+		WHERE
+				<![CDATA[
+				LOGIN_DATE < TO_CHAR(SYSDATE - #KEEP_DAY#, 'YYYYMMDD')
+				]]>
+    </delete>
+
+
+    <delete id="deleteExclusiveControlInfoTimeOver" parameterClass="java.util.Map">
+	<![CDATA[
+		/* batch.deleteExclusiveControlInfoTimeOver */
+	]]>
+		DELETE FROM
+				KLB_LIBRARY_CONTROL
+		WHERE
+				<![CDATA[
+				INS_DATE <= SYSTIMESTAMP - ( #KEEP_HOUR# / 24 )
+				]]>
+	</delete>
+
+	<select id="selectCountAnalyzeLogin" parameterClass="java.util.Map" resultClass="Integer">
+		<![CDATA[
+		/* batch.selectCountAnalyzeLogin */
+		]]>
+		SELECT
+			COUNT(*)
+		FROM
+			KLB_ANALYZE_LOGIN
+		WHERE
+			LOGIN_DATE  = TO_CHAR(SYSDATE - 1, 'YYYYMMDD')
+
+	</select>
+
+</sqlMap>

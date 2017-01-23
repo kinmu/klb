@@ -1,0 +1,16 @@
+#macro(sortUrl $sortType)
+	#if ($type == "SF")
+		<a href="javascript:sort_list('$thisKey', '$sortType')">
+	#else
+		<a href="$url&&sortKey=$thisKey&&sortOrder=$sortType">
+	#end
+#end
+#if($sortKey == $thisKey)
+<b>
+	#if($sortOrder == "ASC")#sortUrl("DESC")$body <img src="$contextPath/images/ar_asc.gif"/>
+	#else#sortUrl("ASC")$body <img src="$contextPath/images/ar_desc.gif"/>
+#end
+</b>
+#else#sortUrl("ASC")$body
+#end
+</a>

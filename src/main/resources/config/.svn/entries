@@ -1,0 +1,40 @@
+10
+
+dir
+206
+http://192.168.24.66:81/svn/sagaKlb/SAGA_KLB/trunk/src/main/resources/config
+http://192.168.24.66:81/svn/sagaKlb
+
+
+
+2015-02-27T04:56:39.234742Z
+205
+jungsr
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+337e5024-6805-3a46-a419-17b88f4a7cb3
+
+ibatis
+dir
+
+sitemesh
+dir
+
+spring
+dir
+
+sqlmap
+dir
+

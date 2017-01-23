@@ -1,0 +1,47 @@
+package jp.go.saga.aspect.common;
+
+import java.lang.annotation.Annotation;
+
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.web.bind.annotation.RequestParam;
+
+public class ParameterAdvice implements MethodInterceptor{
+
+	private AbstractParameterInterceptor[] parameterInterceptors;
+	
+	@Override
+	public final Object invoke(MethodInvocation invocation) throws Throwable {
+
+		Annotation[][] aaa = invocation.getMethod().getParameterAnnotations();
+
+		int argIdx = 0;
+		for(Annotation[] aa : aaa){
+			for(Annotation a : aa){
+				// 実行されるメソッドにて@RequestParamタイプのオブジェクトを検索  					
+				if(a instanceof RequestParam){
+					Object argument = invocation.getArguments()[argIdx];
+					
+					for(AbstractParameterInterceptor p : parameterInterceptors){
+						Object o = p.getModifiedArgument(argument);
+						if(o != AbstractParameterInterceptor.IS_NOT_A_TARGET){
+							argument = o;
+						}
+					}
+				}
+			}
+			argIdx++;
+		}		
+		//return invocation.getMethod().invoke(invocation.getThis(), invocation.getArguments());
+		return invocation.proceed();
+	}
+
+
+	public AbstractParameterInterceptor[] getParameterInterceptors() {
+		return parameterInterceptors;
+	}
+
+	public void setParameterInterceptors(AbstractParameterInterceptor[] parameterInterceptors) {
+		this.parameterInterceptors = parameterInterceptors;
+	}
+}

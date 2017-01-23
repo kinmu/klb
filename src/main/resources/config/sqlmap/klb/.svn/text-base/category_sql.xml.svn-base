@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="category">
+
+	<select id="selectCategoryListForCheckbox" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* category.selectCategoryListForCheckbox */
+	]]>
+		SELECT
+				CATEGORY_ID
+			,	CATEGORY_NAME
+			,	PARENT_CATEGORY_ID
+			,	NVL2(PARENT_CATEGORY_ID, '2', '1')  as CATEGORY_LEVEL
+			,	BIKO1
+			,	BIKO2
+			,	DISPLAY_ORDER
+		FROM
+				KLB_CATEGORY_MASTER
+		ORDER BY
+				DISPLAY_ORDER
+	</select>
+
+	<select id="selectCategoryListForChecked" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* category.selectCategoryListForChecked */
+	]]>
+		SELECT
+				a.CATEGORY_ID
+			,	a.CATEGORY_NAME
+			,	a.PARENT_CATEGORY_ID
+			,	NVL2(a.PARENT_CATEGORY_ID, '2', '1')  as CATEGORY_LEVEL
+			,	a.BIKO1
+			,	a.BIKO2
+			,	a.DISPLAY_ORDER
+			,	NVL2(b.CATEGORY_ID, 'checked', '')  as CHECK_CONDITION
+		FROM
+				KLB_CATEGORY_MASTER   a
+			,	KLB_LIBRARY_CATEGORY  b
+		WHERE
+				b.LIBRARY_ID(+)  = #LIBRARY_ID#
+			AND	b.CATEGORY_ID(+) = a.CATEGORY_ID
+		ORDER BY
+				a.DISPLAY_ORDER
+	</select>
+
+	<select id="selectCategoryListForListbox" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* category.selectCategoryListForListbox */
+	]]>
+
+		SELECT
+				A.CATEGORY_ID
+			,	A.CATEGORY_NAME
+			,	A.PARENT_CATEGORY_ID
+			,	B.CATEGORY_NAME  as PARENT_CATEGORY_NAME
+			,	'(' || B.CATEGORY_NAME || ') ' || A.CATEGORY_NAME  as JOIN_CATEGORY_NAME
+			,	'(' || B.BIKO2 || ') ' || A.CATEGORY_NAME  as JOIN_CATEGORY_NAME2
+			,	A.BIKO1
+			,	A.BIKO2
+			,	A.DISPLAY_ORDER
+			,
+				(
+                   SELECT
+				  	COUNT(LIBRARY_ID) CNT
+				  FROM
+                        (
+                          SELECT
+                              	LI.LIBRARY_ID
+                              ,	wmsys.wm_concat(LC.CATEGORY_ID) CATEGORY_ID
+                          FROM
+				  	    	KLB_LIBRARY_CATEGORY LC
+                              , (
+                                  SELECT
+                                      LIBRARY_ID
+                                  FROM
+                                      KLB_LIBRARY_INFO
+                                  WHERE
+                                      DEL_FLG = '0'
+                                      AND CLOSE_FLG = '0'
+                                      AND TO_CHAR(SYSTIMESTAMP,'YYYYMMDD') BETWEEN OPEN_TERM_FROM AND OPEN_TERM_TO
+                                  ) LI
+                          WHERE
+                            LI.LIBRARY_ID = LC.LIBRARY_ID(+)
+                          GROUP BY  LI.LIBRARY_ID
+                          ) C
+                     WHERE INSTR(C.CATEGORY_ID,A.CATEGORY_ID) != 0
+                   ) CATEGORY_LIBRARY_COUNT
+        	FROM
+		        KLB_CATEGORY_MASTER  A
+		    ,    KLB_CATEGORY_MASTER  B
+		WHERE
+		   	A.PARENT_CATEGORY_ID  IS NOT NULL
+		    AND A.PARENT_CATEGORY_ID  = B.CATEGORY_ID(+)
+		ORDER BY
+			<isEqual property="PARENT_CATEGORY_DESC" compareValue="DESC">
+				PARENT_CATEGORY_ID desc ,
+			</isEqual>
+				DISPLAY_ORDER
+	</select>
+
+</sqlMap>

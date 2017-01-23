@@ -1,0 +1,42 @@
+package jp.go.saga.controller.klb;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class Test {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) throws Exception {
+		// TODO 自動生成されたメソッド・スタブ
+		Test t = new Test();
+		t.test();
+	}
+
+	 public void test() throws Exception {
+		    //ファイル名
+//		    String fileName = "..\\..\\..\\hosts";
+		    String fileName = "%2Fetc%2Fpasswd";
+
+		    //正規表現でチェック
+		    String regex = "(/|\\.\\./|\\.\\.\\\\)";
+		    Pattern pattern = Pattern.compile(regex);
+		    Matcher matcher = pattern.matcher(fileName);
+
+		    //結果
+		    String result = matcher.find() ? "true" : "false";
+
+		    System.out.println("result : "+result);
+
+		    //出力して確認
+//		    resp.setContentType("text/html; charset=UTF-8");
+//		    PrintWriter out = resp.getWriter();
+//		    out.println("<html><body>");
+//		    out.println(StringEscapeUtils.escapeHtml4(result));
+//		    out.println("</body></html>");
+//		    out.close();
+		  }
+
+
+}

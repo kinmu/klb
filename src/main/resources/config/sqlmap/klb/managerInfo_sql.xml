@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="managerInfo">
+
+
+	<select id="selectManagerByLoginIdAndSchCd" parameterClass="Map" resultClass="HashMap" >
+	<![CDATA[
+		/* managerInfo.selectManagerByLoginIdAndSchCd, */
+	]]>
+		SELECT
+			LOGIN_ID,
+			SCHOOL_ID,
+			DEL_FLG
+		FROM KLB_MANAGER_INFO
+		WHERE
+			1 = 1
+			<isEmpty property="INS_LOGIN_ID">
+			AND LOGIN_ID = #LOGIN_ID#
+			<!--AND SCHOOL_ID = #SCH_CD# ※ログインIDのみで管理、学校IDは項目のみ管理  -->
+			AND DEL_FLG = '0'
+			</isEmpty>
+			<isNotEmpty property="INS_LOGIN_ID">
+			AND LOGIN_ID = #INS_LOGIN_ID#
+			</isNotEmpty>
+	</select>
+
+	<sql id="managerInfo.selectManagerSql" >
+	<![CDATA[
+		/* managerInfo.selectManagerSql, */
+	]]>
+		SELECT
+			MI.LOGIN_ID,
+			UV.AID,
+			UV.SCHOOL_ID,
+			MI.DEL_FLG,
+			UV.NAME,
+			UV.SCHOOL_NAME,
+			UV.MAIL_ADDRESS
+		FROM
+			USER_VIEW UV,
+			KLB_MANAGER_INFO MI
+		WHERE
+			MI.LOGIN_ID = UV.LOGIN_ID
+			AND MI.DEL_FLG = '0'
+		ORDER BY
+			MI.UPD_DATE DESC
+
+	</sql>
+
+	<select id="selectManager" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* managerInfo.selectManager, */
+	]]>
+		<include refid="common.beforePaginatedList"/>
+		<include refid="managerInfo.selectManagerSql"/>
+		<include refid="common.afterPaginatedList"/>
+	</select>
+
+	<select id="selectManagerCount" parameterClass="java.util.Map" resultClass="Integer">
+	<![CDATA[
+		/* managerInfo.selectManagerCount, */
+	]]>
+		<include refid="common.beforeCountPaginatedList"/>
+		<include refid="managerInfo.selectManagerSql"/>
+		<include refid="common.afterCountPaginatedList"/>
+	</select>
+
+	<insert id="insertManager" parameterClass="java.util.Map">
+	<![CDATA[
+		/* managerInfo.insertManager */
+	]]>
+		INSERT INTO
+			KLB_MANAGER_INFO
+		(
+				LOGIN_ID
+			,	SCHOOL_ID
+			,	DEL_FLG
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		) VALUES (
+				#INS_LOGIN_ID#
+			,	#INS_SCHOOL_ID#
+			,	0
+			,	#LOGIN_ID#
+			,	SYSTIMESTAMP
+			,	#LOGIN_ID#
+			,	SYSTIMESTAMP
+		)
+	</insert>
+
+	<update id="updateManager" parameterClass="java.util.Map" >
+	<![CDATA[
+		/* managerInfo.updateManager */
+	]]>
+		UPDATE
+			KLB_MANAGER_INFO
+		SET
+			<isEmpty property="INS_LOGIN_ID">
+			 DEL_FLG = '1'
+			 </isEmpty>
+			 <isNotEmpty property="INS_LOGIN_ID">
+			 DEL_FLG = '0'
+			 </isNotEmpty>
+			, UPD_USER_ID = #LOGIN_ID#
+			, UPD_DATE = SYSTIMESTAMP
+		WHERE
+			1 = 1
+			<isEmpty property="INS_LOGIN_ID">
+			AND LOGIN_ID = #DEL_USER_ID#
+			</isEmpty>
+			<isNotEmpty property="INS_LOGIN_ID">
+			AND LOGIN_ID = #INS_LOGIN_ID#
+			</isNotEmpty>
+	</update>
+
+	<select id="checkSchoolAuthMaster" parameterClass="Map" resultClass="HashMap" >
+	<![CDATA[
+		/* managerInfo.checkSchoolAuthMaster, */
+	]]>
+		SELECT
+			SCHOOL_ID,
+			SCHOOL_NAME,
+			COMMITTEE_ID,
+			OFFICE_ID
+		FROM KLB_SCHOOL_AUTH_MASTER
+		WHERE
+			SCHOOL_ID = #SCH_CD#
+	</select>
+
+
+	<select id="selectSchoolBySchoolType" parameterClass="Map" resultClass="HashMap" >
+	<![CDATA[
+		/* managerInfo.selectSchoolBySchoolType, */
+	]]>
+		SELECT
+			S.SCHOOL_ID,
+			S.SCHOOL_NAME,
+			S.SCHOOL_TYPE,
+			S.AREA
+		FROM SCHOOL S, KLB_SCHOOL_AUTH_MASTER M
+		WHERE
+			SCHOOL_TYPE = #SELECT_SCHOOL_TYPE#
+			AND S.SCHOOL_ID = M.SCHOOL_ID
+			AND TO_CHAR(SYSDATE, 'YYYY/MM/DD') BETWEEN S.START_DATE AND S.END_DATE
+		ORDER BY
+			S.AREA, S.SCHOOL_ID
+
+	</select>
+
+
+	<sql id="managerInfo.selectTeacherBySchoolTypeAndSchoolIdSql" >
+	<![CDATA[
+		/* managerInfo.selectTeacherBySchoolTypeAndSchoolIdSql, */
+	]]>
+		SELECT
+		   	*
+		FROM
+		   	(
+		   	SELECT
+				UV.AID,
+				CASE
+					WHEN UV.LOGIN_ID IS NULL THEN
+						(SELECT
+		                    MAX(A.LOGIN_ID)
+		                FROM
+		                    USER_VIEW A
+		                WHERE
+		                    A.AID = UV.AID
+		                    AND LOGIN_ID IS NOT NULL)
+		            ELSE UV.LOGIN_ID
+		        END AS LOGIN_ID ,
+		        UV.SCHOOL_ID,
+		        UV.NAME,
+		        UV.START_DATE,
+		        UV.END_DATE,
+		        UV.USER_TYPE,
+		        (   SELECT
+		                MAX(SCHOOL_NAME)
+		            FROM
+		                SCHOOL
+		            WHERE
+		                SCHOOL_ID = UV.SCHOOL_ID
+		         )AS SCHOOL_NAME,
+		         CASE
+					WHEN UV.MAIL_ADDRESS IS NULL THEN
+						(SELECT
+		                    MAX(A.MAIL_ADDRESS)
+		                FROM
+		                    USER_VIEW A
+		                WHERE
+		                    A.AID = UV.AID
+		                    AND LOGIN_ID IS NOT NULL)
+		            ELSE UV.MAIL_ADDRESS
+		        END AS MAIL_ADDRESS
+		    FROM
+		        USER_VIEW UV,
+		        KLB_SCHOOL_AUTH_MASTER AM
+		    WHERE
+		        UV.USER_TYPE = 'T'
+		        <isNotEmpty property="SELECT_SCHOOL">
+		        AND UV.SCHOOL_ID = #SELECT_SCHOOL#
+		        </isNotEmpty>
+		        <isEmpty property="SELECT_SCHOOL">
+		        	<isNotEmpty property="SELECT_SCHOOL_TYPE">
+		        AND UV.SCHOOL_ID IN
+		        (   SELECT
+		                SCHOOL_ID
+		            FROM
+		                SCHOOL
+		            WHERE
+		                SCHOOL_TYPE = #SELECT_SCHOOL_TYPE#
+		                AND TO_CHAR(SYSDATE,'YYYY/MM/DD') BETWEEN START_DATE AND END_DATE
+		            GROUP BY SCHOOL_ID
+		        )
+		        	</isNotEmpty>
+		        </isEmpty>
+		        AND TO_CHAR(SYSDATE,'YYYY/MM/DD') BETWEEN UV.START_DATE AND UV.END_DATE
+		        AND UV.SCHOOL_ID = AM.SCHOOL_ID
+		        <isNotEmpty property="TEACHER_NAME">
+		        AND UV.NAME LIKE '%'||#TEACHER_NAME#||'%'
+		        </isNotEmpty>
+		) T
+		WHERE
+		    NOT EXISTS(
+		            SELECT *
+		            FROM KLB_MANAGER_INFO MI
+		            WHERE
+		                MI.DEL_FLG = '0'
+		                AND MI.LOGIN_ID = T.LOGIN_ID)
+		ORDER BY T.SCHOOL_NAME, T.NAME
+
+	</sql>
+
+	<select id="selectTeacherBySchoolTypeAndSchoolId" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* managerInfo.selectTeacherBySchoolTypeAndSchoolId, */
+	]]>
+		<include refid="common.beforePaginatedList"/>
+		<include refid="managerInfo.selectTeacherBySchoolTypeAndSchoolIdSql"/>
+		<include refid="common.afterPaginatedList"/>
+	</select>
+
+	<select id="selectTeacherBySchoolTypeAndSchoolIdCount" parameterClass="java.util.Map" resultClass="Integer">
+	<![CDATA[
+		/* managerInfo.selectTeacherBySchoolTypeAndSchoolIdCount, */
+	]]>
+		<include refid="common.beforeCountPaginatedList"/>
+		<include refid="managerInfo.selectTeacherBySchoolTypeAndSchoolIdSql"/>
+		<include refid="common.afterCountPaginatedList"/>
+	</select>
+
+</sqlMap>

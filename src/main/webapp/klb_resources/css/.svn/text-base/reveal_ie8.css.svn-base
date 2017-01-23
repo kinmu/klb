@@ -1,0 +1,57 @@
+<%@ page language="java" contentType="text/css; charset=UTF-8" pageEncoding="UTF-8"%>
+/*	--------------------------------------------------
+	Reveal Modals
+	-------------------------------------------------- */
+		
+/*	IE8
+============================================================================ */
+.reveal-modal-bg {
+	filter:alpha(opacity=60);
+	-ms-filter:"alpha( opacity=60 )";
+}
+.reveal-modal {
+	visibility: hidden;
+	top:0;
+	left:50%;
+	margin-left: -462px;
+	width:884px;
+	background: #eee;
+	position: absolute;
+	z-index: 10001;
+	padding: 27px 20px 20px;
+	border-radius:0;
+	-box-shadow: 0;
+}
+
+.button_cancel.close-reveal-modal {
+	-pie-background:linear-gradient(#c0c0c0, #a1a1a1);
+//	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#c0c0c0', endColorstr='#a1a1a1')";
+}
+.button_cancel:hover,
+.button_cancel:active {
+	-pie-background:linear-gradient(#a1a1a1, #c0c0c0);
+//	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#a1a1a1', endColorstr='#c0c0c0')";
+}
+
+.button_cancel.close-reveal-modal {
+	-pie-background:linear-gradient(#ffffff, #a1a1a1);
+//	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#ffffff', endColorstr='#a1a1a1')";
+}
+.button_sample.close-reveal-modal,
+.button_test.close-reveal-modal,
+.button_temporary.close-reveal-modal,
+.button_nextq.close-reveal-modal {
+	-pie-background:linear-gradient(#ffa540, #ff8f11);
+//	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#ffa540', endColorstr='#ff8f11')";
+}
+.button_sample:hover,
+.button_sample:active,
+.button_test:hover,
+.button_test:active,
+.button_temporary:hover,
+.button_temporary:active,
+.button_nextq:hover,
+.button_nextq:active {
+	-pie-background:linear-gradient(#ff8f11, #ffa540);
+//	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#ff8f11', endColorstr='#ffa540')";
+}

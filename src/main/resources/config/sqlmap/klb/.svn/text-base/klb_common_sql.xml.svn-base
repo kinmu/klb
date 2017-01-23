@@ -1,0 +1,617 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="klb_common">
+
+	<select id="selectTksKlbCodeList" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* klb_common.selectTksKlbCodeList, */
+	]]>
+		SELECT
+				ROW_NUMBER() OVER(ORDER BY b.CODE) AS NO
+		        , a.CODE_TYPE_ID
+		        , a.CODE_TYPE_NAME
+		        , b.CODE
+		        , b.CODE_NAME
+		        , b.EXPLANATION
+		        , b.DISPLAY_ORDER
+		    FROM
+		        KLB_CODE_TYPE a
+		        , KLB_CODE_MASTER b
+		    WHERE
+		        a.CODE_TYPE_ID = b.CODE_TYPE_ID
+		        AND  a.CODE_TYPE_ID = #CODE_TYPE_ID#
+		    ORDER BY
+		        DISPLAY_ORDER
+	</select>
+
+	<resultMap class="java.util.HashMap" id="classMap">
+		<result property="CODE" 	column="CODE" 	nullValue=""/>
+		<result property="VALUE" 	column="VALUE" 	nullValue=""/>
+	</resultMap>
+
+	<select id="selectClassList" parameterClass="java.util.Map" resultMap="classMap">
+	<![CDATA[
+		/* klb_common.selectClassList,  */
+	]]>
+		<isEmpty property="NO_BLANK">
+		SELECT
+			'' CODE
+			, '[全体]' VALUE
+		FROM
+			DUAL
+		UNION ALL
+		</isEmpty>
+		SELECT
+			CODE
+			, VALUE
+		FROM (
+			SELECT
+				TO_CHAR(B.GRADE_CLASS_ID) CODE,
+				TO_CHAR(B.GRADE_CLASS_NAME) VALUE
+			FROM
+				STAFF_LECTURE A, GRADE_CLASS B
+			WHERE
+				A.SCHOOL_ID = B.SCHOOL_ID
+			AND A.YEAR = B.YEAR
+			AND A.GRADE_CLASS_ID = B.GRADE_CLASS_ID
+			AND A.SCHOOL_ID =  #SCH_CD#
+			AND A.GRADE_CODE =  #GLOBAL_GRADE_CODE#
+			<isNotEmpty property="GLADE_CLASS_ID">
+			AND A.GLADE_CLASS_ID = #GLADE_CLASS_ID#
+			</isNotEmpty>
+			<isNotEmpty property="PLURAL_CLASS_CD">
+			AND A.PLURAL_CLASS_CD = #PLURAL_CLASS_CD#
+			</isNotEmpty>
+			<isNotEmpty property="GLOBAL_LECTURE_CODE">
+			AND A.LECTURE_CODE = #GLOBAL_LECTURE_CODE#
+			</isNotEmpty>
+			AND A.YEAR = #YEAR#
+			AND A.STAFF_ID = #AID#
+			GROUP BY B.GRADE_CLASS_NAME, B.GRADE_CLASS_ID
+			ORDER BY B.GRADE_CLASS_ID
+		)
+	</select>
+
+	<select id="selectClassListre" parameterClass="java.util.Map" resultMap="classMap">
+	<![CDATA[
+		/* klb_common.selectClassListre,  */
+	]]>
+		<isEmpty property="NO_BLANK">
+		SELECT
+			'' CODE
+			, '[全体平均]' VALUE
+		FROM
+			DUAL
+		UNION ALL
+		</isEmpty>
+		SELECT
+			CODE
+			, VALUE
+		FROM (
+			SELECT
+				TO_CHAR(B.GRADE_CLASS_ID) CODE,
+				TO_CHAR(B.GRADE_CLASS_NAME) VALUE
+			FROM
+				STAFF_LECTURE A, GRADE_CLASS B
+			WHERE
+				A.SCHOOL_ID = B.SCHOOL_ID
+			AND A.YEAR = B.YEAR
+			AND A.GRADE_CLASS_ID = B.GRADE_CLASS_ID
+			AND A.SCHOOL_ID =  #SCH_CD#
+			AND A.GRADE_CODE =  #GLOBAL_GRADE_CODE#
+			<isNotEmpty property="GLADE_CLASS_ID">
+			AND A.GLADE_CLASS_ID = #GLADE_CLASS_ID#
+			</isNotEmpty>
+			<isNotEmpty property="PLURAL_CLASS_CD">
+			AND A.PLURAL_CLASS_CD = #PLURAL_CLASS_CD#
+			</isNotEmpty>
+			<isNotEmpty property="GLOBAL_LECTURE_CODE">
+			AND A.LECTURE_CODE = #GLOBAL_LECTURE_CODE#
+			</isNotEmpty>
+			AND A.YEAR = #YEAR#
+			AND A.STAFF_ID = #AID#
+			GROUP BY B.GRADE_CLASS_NAME, B.GRADE_CLASS_ID
+			ORDER BY B.GRADE_CLASS_ID DESC
+		)
+	</select>
+
+	<select id="selectClassListTitle" parameterClass="java.util.Map" resultMap="classMap">
+	<![CDATA[
+		/* klb_common.selectClassListTitle,  */
+	]]>
+
+		SELECT
+			CODE
+			, VALUE
+		FROM (
+			SELECT
+				TO_CHAR(B.GRADE_CLASS_ID) CODE,
+				TO_CHAR(B.GRADE_CLASS_NAME) VALUE
+			FROM
+				STAFF_LECTURE A, GRADE_CLASS B
+			WHERE
+				A.SCHOOL_ID = B.SCHOOL_ID
+			AND A.YEAR = B.YEAR
+			AND A.GRADE_CLASS_ID = B.GRADE_CLASS_ID
+			AND A.SCHOOL_ID =  #SCH_CD#
+			AND A.GRADE_CODE =  #GLOBAL_GRADE_CODE#
+			<isNotEmpty property="GLADE_CLASS_ID">
+			AND A.GLADE_CLASS_ID = #GLADE_CLASS_ID#
+			</isNotEmpty>
+			<isNotEmpty property="PLURAL_CLASS_CD">
+			AND A.PLURAL_CLASS_CD = #PLURAL_CLASS_CD#
+			</isNotEmpty>
+			<isNotEmpty property="GLOBAL_LECTURE_CODE">
+			AND A.LECTURE_CODE = #GLOBAL_LECTURE_CODE#
+			</isNotEmpty>
+			AND A.YEAR = #YEAR#
+			AND A.STAFF_ID = #AID#
+			GROUP BY B.GRADE_CLASS_NAME, B.GRADE_CLASS_ID
+			ORDER BY B.GRADE_CLASS_ID ASC
+		)
+	</select>
+
+
+	<select id="selectClassList2" parameterClass="java.util.Map" resultMap="classMap">
+	<![CDATA[
+		/* klb_common.selectClassList2,  */
+	]]>
+		<isEmpty property="NO_BLANK">
+		SELECT
+			'' CODE
+			, '[全体]' VALUE
+		FROM
+			DUAL
+		UNION ALL
+		</isEmpty>
+		SELECT
+			CODE
+			, VALUE
+		FROM (
+			SELECT
+				TO_CHAR(B.GRADE_CLASS_ID) CODE,
+				TO_CHAR(B.GRADE_CLASS_NAME) VALUE
+			FROM
+				STAFF_LECTURE A, GRADE_CLASS B
+			WHERE
+				A.SCHOOL_ID = B.SCHOOL_ID
+			AND A.YEAR = B.YEAR
+			AND A.GRADE_CLASS_ID = B.GRADE_CLASS_ID
+			AND A.SCHOOL_ID =  #SCH_CD#
+			AND A.GRADE_CODE =  #GLOBAL_GRADE_CODE#
+			<isNotEmpty property="GLADE_CLASS_ID">
+			AND A.GLADE_CLASS_ID = #GLADE_CLASS_ID#
+			</isNotEmpty>
+			<isNotEmpty property="PLURAL_CLASS_CD">
+			AND A.PLURAL_CLASS_CD = #PLURAL_CLASS_CD#
+			</isNotEmpty>
+			<isNotEmpty property="GLOBAL_LECTURE_CODE">
+			AND A.LECTURE_CODE = #GLOBAL_LECTURE_CODE#
+			</isNotEmpty>
+			AND A.YEAR = #YEAR#
+			AND A.STAFF_ID = #AID#
+			AND B.GRADE_CLASS_ID  IN (
+					SELECT DISTINCT GRADE_CLASS_ID
+					  FROM TKS_TEST_APPLY
+					WHERE ONLINE_TEST_ID = #ONLINE_TEST_ID#
+ 					  AND SCORING_YN = 'Y'
+			)
+
+			<isNotEmpty property="GRADE_CLASS_ID">
+				AND B.GRADE_CLASS_ID = #GRADE_CLASS_ID#
+			</isNotEmpty>
+
+
+			GROUP BY B.GRADE_CLASS_NAME, B.GRADE_CLASS_ID
+			ORDER BY B.GRADE_CLASS_ID DESC
+		)
+	</select>
+
+
+	<select id="selectClassList2re" parameterClass="java.util.Map" resultMap="classMap">
+	<![CDATA[
+		/* klb_common.selectClassList2re,  */
+	]]>
+		<isEmpty property="NO_BLANK">
+		SELECT
+			'' CODE
+			, '[全体平均]' VALUE
+		FROM
+			DUAL
+		UNION ALL
+		</isEmpty>
+		SELECT
+			CODE
+			, VALUE
+		FROM (
+			SELECT
+				TO_CHAR(B.GRADE_CLASS_ID) CODE,
+				TO_CHAR(B.GRADE_CLASS_NAME) VALUE
+			FROM
+				STAFF_LECTURE A, GRADE_CLASS B
+			WHERE
+				A.SCHOOL_ID = B.SCHOOL_ID
+			AND A.YEAR = B.YEAR
+			AND A.GRADE_CLASS_ID = B.GRADE_CLASS_ID
+			AND A.SCHOOL_ID =  #SCH_CD#
+			AND A.GRADE_CODE =  #GLOBAL_GRADE_CODE#
+			<isNotEmpty property="GLADE_CLASS_ID">
+			AND A.GLADE_CLASS_ID = #GLADE_CLASS_ID#
+			</isNotEmpty>
+			<isNotEmpty property="PLURAL_CLASS_CD">
+			AND A.PLURAL_CLASS_CD = #PLURAL_CLASS_CD#
+			</isNotEmpty>
+			<isNotEmpty property="GLOBAL_LECTURE_CODE">
+			AND A.LECTURE_CODE = #GLOBAL_LECTURE_CODE#
+			</isNotEmpty>
+			AND A.YEAR = #YEAR#
+			AND A.STAFF_ID = #AID#
+			AND B.GRADE_CLASS_ID  IN (
+					SELECT DISTINCT GRADE_CLASS_ID
+					  FROM TKS_TEST_APPLY
+					WHERE ONLINE_TEST_ID = #ONLINE_TEST_ID#
+					  AND SCORING_YN = 'Y'
+			)
+
+			<isNotEmpty property="GRADE_CLASS_ID">
+				AND B.GRADE_CLASS_ID = #GRADE_CLASS_ID#
+			</isNotEmpty>
+
+
+			GROUP BY B.GRADE_CLASS_NAME, B.GRADE_CLASS_ID
+			ORDER BY B.GRADE_CLASS_ID ASC
+		)
+	</select>
+
+	<select id="selectClassList3" parameterClass="java.util.Map" resultMap="classMap">
+	<![CDATA[
+		/* klb_common.selectClassList3,  */
+	]]>
+		<isEmpty property="NO_BLANK">
+		SELECT
+			'' CODE
+			, '[全体]' VALUE
+		FROM
+			DUAL
+		UNION ALL
+		</isEmpty>
+		SELECT
+			CODE
+			, VALUE
+		FROM (
+			SELECT
+				TO_CHAR(B.GRADE_CLASS_ID) CODE,
+				TO_CHAR(B.GRADE_CLASS_NAME) VALUE
+			FROM
+				STAFF_LECTURE A, GRADE_CLASS B
+			WHERE
+				A.SCHOOL_ID = B.SCHOOL_ID
+			AND A.YEAR = B.YEAR
+			AND A.GRADE_CLASS_ID = B.GRADE_CLASS_ID
+			AND A.SCHOOL_ID =  #SCH_CD#
+			AND A.GRADE_CODE =  #GLOBAL_GRADE_CODE#
+			<isNotEmpty property="GLADE_CLASS_ID">
+			AND A.GLADE_CLASS_ID = #GLADE_CLASS_ID#
+			</isNotEmpty>
+			<isNotEmpty property="PLURAL_CLASS_CD">
+			AND A.PLURAL_CLASS_CD = #PLURAL_CLASS_CD#
+			</isNotEmpty>
+			<isNotEmpty property="GLOBAL_LECTURE_CODE">
+			AND A.LECTURE_CODE = #GLOBAL_LECTURE_CODE#
+			</isNotEmpty>
+			AND A.YEAR = #YEAR#
+			AND A.STAFF_ID = #AID#
+			AND B.GRADE_CLASS_ID  IN (
+					SELECT DISTINCT GRADE_CLASS_ID
+					  FROM TKS_TEST_APPLY
+					WHERE ONLINE_TEST_ID = #ONLINE_TEST_ID#
+					  AND SCORING_YN = 'Y'
+			)
+			GROUP BY B.GRADE_CLASS_NAME, B.GRADE_CLASS_ID
+			ORDER BY B.GRADE_CLASS_ID ASC
+		)
+	</select>
+
+	<select id="selectStudentInfo" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* klb_common.selectStudentInfo, */
+	]]>
+		SELECT
+		    B.SCHOOL_ID AS SCHOOL_ID
+		    , B.YEAR AS YEAR
+		    , B.GRADE_CLASS_ID AS GRADE_CLASS_ID
+		    , B.GRADE_CODE AS GRADE_CODE
+		    , A.NAME AS STUDENT_NAME
+		    , B.GRADE_CLASS_NAME AS CLASS_NAME
+		FROM
+		    USER_VIEW A
+		    , GRADE_CLASS B
+		WHERE
+		    B.SCHOOL_ID = #SCH_CD#
+		    AND B.SCHOOL_ID = A.SCHOOL_ID
+		    AND B.YEAR = #YEAR#
+		    AND A.GRADE_CLASS_ID = B.GRADE_CLASS_ID
+		    AND A.LOGIN_ID = #STUDENT_LOGIN_ID#
+		    AND TO_CHAR(SYSDATE,'yyyy/mm/dd') BETWEEN A.START_DATE AND A.END_DATE
+	</select>
+
+	<select id="selectStaffLectureStudent" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* klb_common.selectStaffLectureStudent, */
+	]]>
+		SELECT
+			GRADE_CLASS_ID
+			, PLURAL_CLASS_ID
+			, STUDENT_ID
+			, STUDENT_LOGIN_ID
+		FROM
+			TKS_STAFF_LECTURE_STUDENT
+		WHERE
+			SCHOOL_ID = #SCH_CD#
+		AND YEAR = #YEAR#
+		AND STAFF_ID = #AID#
+		AND LECTURE_CODE = #GLOBAL_LECTURE_CODE#
+	</select>
+
+	<select id="selectToday" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+
+		<![CDATA[
+
+				/* klb_common_sql ,  selectToday  ,  */
+
+				SELECT
+				    TO_CHAR( SYSDATE, 'YYYY/MM/DD') AS TODAY
+				    , TO_CHAR( SYSDATE, 'YYYY/MM/DD HH24:MI:SS') AS TODAYTIME
+				FROM
+					DUAL
+
+			]]>
+
+	</select>
+
+    <select id="selectCurrDatetime" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+       SELECT TO_CHAR(SYSDATE,'YYYYMMDDHH24IISS') AS CURR_DATETIME FROM DUAL
+    </select>
+
+    <select id="selectCurrDatetimeMs" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+       SELECT TO_CHAR(SYSTIMESTAMP,'YYYYMMDDHH24IISSFF6') AS CURR_DATETIME_MS FROM DUAL
+    </select>
+
+
+	<select id="selectTableColumnUseSum" parameterClass="java.util.Map" resultClass="Integer">
+	<![CDATA[
+		/* klb_common.selectTableColumnUseSum,  */
+	]]>
+		SELECT
+		    SUM(TO_NUMBER(dbms_xmlgen.getxmltype('SELECT COUNT(*) FROM ' || a.TABLE_NAME || ' WHERE '|| #COLUMN_NAME# || ' = ' || #COLUMN_VALUE#).Extract('//text()'))) SUM_ROW
+		FROM
+		    ALL_TAB_COLUMNS a,
+		    ALL_TAB_COMMENTS b,
+		    ALL_COL_COMMENTS c
+		WHERE
+		    a.OWNER = b.OWNER
+		AND b.OWNER = c.OWNER
+		AND a.TABLE_NAME = b.TABLE_NAME
+		AND b.TABLE_NAME = c.TABLE_NAME
+		AND a.COLUMN_NAME = c.COLUMN_NAME
+		AND a.OWNER = 'SAGAKLB'
+		<isNotEmpty property="EXCEPT_TABLE_NAME">
+		AND a.TABLE_NAME != #EXCEPT_TABLE_NAME#
+		</isNotEmpty>
+		<isNotEmpty property="EXCEPT_TABLE_NAME_LIST">
+		<iterate prepend=" AND a.TABLE_NAME NOT IN " property="EXCEPT_TABLE_NAME_LIST" open="(" close=")" conjunction=",">
+			#EXCEPT_TABLE_NAME_LIST[]#
+		</iterate>
+		</isNotEmpty>
+		AND a.COLUMN_NAME = #COLUMN_NAME#
+	</select>
+
+	<select id="selectTableColumnUpperUseSum" parameterClass="java.util.Map" resultClass="Integer">
+	<![CDATA[
+ 		/* klb_common.selectTableColumnUpperUseSum,  */
+ 	]]>
+		SELECT
+		    SUM(TO_NUMBER(dbms_xmlgen.getxmltype('SELECT COUNT(*) FROM ' || a.TABLE_NAME || ' WHERE '|| #COLUMN_NAME# || ' IN( ' ||  ' SELECT ' || #COLUMN_NAME# || ' FROM ' || #EXCEPT_TABLE_NAME# || ' WHERE ' || #UPPER_COLUMN_NAME# || ' = ' || #COLUMN_VALUE# ||' )').Extract('//text()'))) SUM_ROW
+		FROM
+		    ALL_TAB_COLUMNS a,
+		    ALL_TAB_COMMENTS b,
+		    ALL_COL_COMMENTS c
+		WHERE
+		    a.OWNER = b.OWNER
+		AND b.OWNER = c.OWNER
+		AND a.TABLE_NAME = b.TABLE_NAME
+		AND b.TABLE_NAME = c.TABLE_NAME
+		AND a.COLUMN_NAME = c.COLUMN_NAME
+		AND a.OWNER = 'SAGAKLB'
+		<isNotEmpty property="EXCEPT_TABLE_NAME">
+		AND a.TABLE_NAME != #EXCEPT_TABLE_NAME#
+		</isNotEmpty>
+		<isNotEmpty property="EXCEPT_TABLE_NAME_LIST">
+		<iterate prepend=" AND a.TABLE_NAME NOT IN " property="EXCEPT_TABLE_NAME_LIST" open="(" close=")" conjunction=",">
+			#EXCEPT_TABLE_NAME_LIST[]#
+		</iterate>
+		</isNotEmpty>
+		AND a.COLUMN_NAME = #COLUMN_NAME#
+	</select>
+
+	<select id="selectTableColumnUseList" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* klb_common.selectTableColumnUseList, */
+	]]>
+		SELECT
+		    ROW_NUMBER() OVER (ORDER BY a.TABLE_NAME ASC) RN,
+		    a.TABLE_NAME,
+		    b.COMMENTS,
+		    dbms_xmlgen.getxmltype('SELECT COUNT(*) FROM ' || a.TABLE_NAME || ' WHERE '|| #COLUMN_NAME# || ' = ' || #COLUMN_VALUE#).Extract('//text()') CNT_ROW
+		FROM
+		    ALL_TAB_COLUMNS a,
+		    ALL_TAB_COMMENTS b,
+		    ALL_COL_COMMENTS c
+		WHERE
+		    a.OWNER = b.OWNER
+		AND b.OWNER = c.OWNER
+		AND a.TABLE_NAME = b.TABLE_NAME
+		AND b.TABLE_NAME = c.TABLE_NAME
+		AND a.COLUMN_NAME = c.COLUMN_NAME
+		AND a.OWNER = 'SAGAKLB'
+		<isNotEmpty property="EXCEPT_TABLE_NAME">
+		AND a.TABLE_NAME != #EXCEPT_TABLE_NAME#
+		</isNotEmpty>
+		<isNotEmpty property="EXCEPT_TABLE_NAME_LIST">
+		<iterate prepend=" AND a.TABLE_NAME NOT IN " property="EXCEPT_TABLE_NAME_LIST" open="(" close=")" conjunction=",">
+			#EXCEPT_TABLE_NAME_LIST[]#
+		</iterate>
+		</isNotEmpty>
+		AND a.COLUMN_NAME = #COLUMN_NAME#
+	</select>
+
+
+	<select id="selectCurrentPeriodId" resultClass="String">
+	<![CDATA[
+		/* klb_common.selectCurrentPeriodId, */
+	]]>
+		SELECT
+			CASE
+			    WHEN TO_CHAR(SYSDATE,'HH24') <![CDATA[<=]]> 12 THEN TO_NUMBER(TO_CHAR(SYSDATE,'HH24'))-8
+			    WHEN TO_CHAR(SYSDATE,'HH24') <![CDATA[>=]]> 13 AND TO_CHAR(SYSDATE,'HH24') <![CDATA[<=]]> 18 THEN TO_NUMBER(TO_CHAR(SYSDATE,'HH24'))-9
+			END PERIOD_ID
+		FROM
+			DUAL
+	</select>
+
+    <select id="selectUserViewByLoginId" parameterClass="Map" resultClass="HashMap" >
+	<![CDATA[
+		/* klb_common.selectUserViewByLoginId, */
+	]]>
+        SELECT
+             LOGIN_ID
+            ,NAME AS USER_NM
+            ,USER_TYPE
+            ,AID
+            ,SCHOOL_ID AS SCH_CD
+            ,SCHOOL_ID
+            ,SCHOOL_NAME
+            ,GRADE_CODE
+            ,GRADE_NAME
+            ,GRADE_CLASS_ID
+            ,CLASS_NAME
+            ,AUTHORITY_CODE
+            ,MAIL_ADDRESS
+        FROM USER_VIEW
+        WHERE LOGIN_ID = #LOGIN_ID#
+          AND SCHOOL_ID = #SCH_CD#
+          AND TO_CHAR(SYSDATE, 'YYYY/MM/DD') BETWEEN START_DATE AND END_DATE
+          AND ROWNUM = 1
+    </select>
+
+    <insert id="insertExclusiveControlInfo" parameterClass="java.util.Map">
+	<![CDATA[
+		/* klb_common.insertExclusiveControlInfo */
+	]]>
+		INSERT INTO KLB_LIBRARY_CONTROL (
+				LIBRARY_ID
+			,	LOGIN_ID
+			,	USE_STATUS
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		) VALUES (
+				#LIBRARY_ID#
+			,	#USER_ID#
+			,	#USE_STATUS#
+			,	#USER_ID#
+			,	SYSTIMESTAMP
+			,	#USER_ID#
+			,	SYSTIMESTAMP
+		)
+	</insert>
+
+	<select id="selectExclusiveControlInfo" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* klb_common.selectExclusiveControlInfo */
+	]]>
+		SELECT
+				LIBRARY_ID
+			,	LOGIN_ID
+			,	USE_STATUS
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		FROM
+				KLB_LIBRARY_CONTROL
+		WHERE
+			<isEmpty property="LIBRARY_ID_LIST">
+				LIBRARY_ID  = #LIBRARY_ID#
+			</isEmpty>
+			<isNotEmpty property="LIBRARY_ID_LIST">
+			<iterate property="LIBRARY_ID_LIST" prepend="LIBRARY_ID IN" open="(" close=")" conjunction="," >
+				#LIBRARY_ID_LIST[]#
+			</iterate>
+			</isNotEmpty>
+			<isNotEmpty property="USE_STATUS">
+			AND USE_STATUS  = #USE_STATUS#
+			</isNotEmpty>
+			AND ROWNUM      = 1
+	</select>
+
+	<delete id="deleteExclusiveControlInfo" parameterClass="java.util.Map">
+	<![CDATA[
+		/* klb_common.deleteExclusiveControlInfo */
+	]]>
+		DELETE FROM
+				KLB_LIBRARY_CONTROL
+		WHERE
+				LOGIN_ID	= #USER_ID#
+			AND USE_STATUS	= #USE_STATUS#
+			<isNotEqual property="USE_STATUS" compareValue="delete">
+			AND LIBRARY_ID  = #LIBRARY_ID#
+			</isNotEqual>
+			<isEqual property="USE_STATUS" compareValue="delete">
+			<isNotEmpty property="LIBRARY_ID_LIST">
+			<iterate property="LIBRARY_ID_LIST" prepend="AND LIBRARY_ID IN" open="(" close=")" conjunction="," >
+				#LIBRARY_ID_LIST[]#
+			</iterate>
+			</isNotEmpty>
+			</isEqual>
+	</delete>
+
+	<select id="selectLibraryInfoByLibraryId" parameterClass="java.util.Map" resultClass="java.util.HashMap" >
+		<![CDATA[
+		/* klb_common.selectLibraryInfoByLibraryId */
+		]]>
+		SELECT
+			LIBRARY_ID
+			,	INS_USER_ID
+			,	INS_AUTH_CODE
+			,	INS_DATE
+			,	SCHOOL_ID
+			,	COMMITTEE_ID
+			,	OFFICE_ID
+			,	GRADE_FROM
+			,	GRADE_TO
+			,	CLOSE_FLG
+			,	OPEN_TERM_FROM
+			,	OPEN_TERM_TO
+			,	TITLE
+			,	CONTENT_INTRO
+			,	FILE_PATH
+			,	IMAGE
+			,	THUMBNAIL
+			,	YOBI1
+			,	YOBI2
+			,	YOBI3
+			,	BINARY_NUMBER
+			,	DEL_FLG
+			,	UPD_USER_ID
+			,	UPD_AUTH_CODE
+			,	UPD_DATE
+		FROM
+			KLB_LIBRARY_INFO
+		WHERE
+			LIBRARY_ID = #LIBRARY_ID#
+	</select>
+
+</sqlMap>

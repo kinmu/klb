@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<decorators defaultdir="/WEB-INF/views/layouts/">
+	<excludes>
+
+	</excludes>
+
+
+    <!-- Main -->
+    <decorator name="main" page="klb/main.jsp" role="ROLE_STUDENT">
+        <pattern>**</pattern>
+    </decorator>
+	<decorator name="main" page="klb/main.jsp" role="ROLE_TEACHER">
+        <pattern>**</pattern>
+    </decorator>
+
+
+    <!-- Layouts -->
+    <decorator name="library_header" 	page="klb/header.jsp"/>
+    <decorator name="library_left" 		page="klb/left.jsp"/>
+
+
+</decorators>

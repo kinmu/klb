@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+
+	<bean id="deleteExclusiveControlInfo" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="batchService" />
+		<property name="targetMethod" value="deleteExclusiveControlInfo" />
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="deleteExclusiveControlInfoTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="deleteExclusiveControlInfo" />
+		<property name="cronExpression" value="0 0/10 * * * ? *" />  <!-- 10分毎に実行 -->
+	</bean>
+
+
+ 	<bean id="insertAnalyzeLogin" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="batchService" />
+		<property name="targetMethod" value="insertAnalyzeLogin" />
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="insertAnalyzeLoginTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="insertAnalyzeLogin" />
+		<property name="cronExpression" value="0 0 2 * * ? *" />  <!-- 毎日02時に実行 -->
+	</bean>
+
+
+	<bean id="deleteLoginHistory" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="batchService" />
+		<property name="targetMethod" value="deleteLoginHistory" />
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="deleteLoginHistoryTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="deleteLoginHistory" />
+		<property name="cronExpression" value="0 20 2 * * ? *" />  <!-- 毎日02時20分に実行 -->
+	</bean>
+
+
+	<bean id="deleteLibraryTempFile" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="batchService" />
+		<property name="targetMethod" value="deleteLibraryTempFile" />
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="deleteLibraryTempFileTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="deleteLibraryTempFile" />
+		<property name="cronExpression" value="0 40 2 * * ? *" />  <!-- 毎日02時40分に実行 -->
+	</bean>
+
+
+	<bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="deleteExclusiveControlInfoTrigger" />
+				<ref bean="insertAnalyzeLoginTrigger" />
+				<ref bean="deleteLoginHistoryTrigger" />
+				<ref bean="deleteLibraryTempFileTrigger" />
+			</list>
+		</property>
+	</bean>
+</beans>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="loginLog">
+
+	<sql id="selectLoginLogListSql">
+		SELECT
+			 LOGIN_SEQ
+			,LOGIN_ID
+			,USER_TYPE
+			,LOGIN_FLAG
+			,HTTP_IW_ROUTE
+			,IW_SSL_CLIENT_I_DN
+			,IW_SSL_CLIENT_I_DN_CN
+			,IW_SSL_CLIENT_I_DN_O
+			,IW_SSL_CLIENT_S_DN
+			,SSL_CLIENT_S_DN_CN
+			,SSL_CLIENT_VERIFY
+			,HTTP_IW_MAILPASS
+			,FST_REG_IP
+			,FST_REG_DT
+		FROM
+			TKS_LOGINLOG
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="LOGIN_ID_FOR_SEARCH">
+				LOGIN_ID = #LOGIN_ID_FOR_SEARCH#
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="selectLoginLogList" parameterClass="Map" resultClass="HashMap">
+		<include refid="common.beforePaginatedList"/>
+		<include refid="loginLog.selectLoginLogListSql"/>
+		<include refid="common.afterPaginatedList"/>
+	</select>
+	<select id="selectLoginLogListCount" parameterClass="Map" resultClass="Integer">
+		<include refid="common.beforeCountPaginatedList"/>
+		<include refid="loginLog.selectLoginLogListSql"/>
+		<include refid="common.afterCountPaginatedList"/>
+	</select>
+
+	<select id="selectLoginLogUserDetail" parameterClass="Map" resultClass="HashMap">
+	</select>
+
+	<select id="selectLoginLogByUserAndTime" parameterClass="Map" resultClass="HashMap">
+		SELECT
+			*
+		FROM
+			(
+			SELECT
+				 LOGIN_DATE
+				,LOGIN_TIME
+				,LOGIN_FLAG
+				,LOGIN_ID
+				,USER_TYPE
+				,OFFICE_ID
+				,COMMITTEE_ID
+				,SCHOOL_ID
+				,SCHOOL_TYPE
+				,GRADE_CODE
+				,FST_REG_IP
+			FROM
+				KLB_LOGIN_HISTORY
+			WHERE
+				LOGIN_ID = #USER_ID#
+				AND LOGIN_DATE = #LOGIN_DATE#
+			) A
+		WHERE
+			A.LOGIN_TIME BETWEEN #LOGIN_TIME_FROM# AND #LOGIN_TIME_TO#
+		ORDER BY
+			A.LOGIN_DATE, A.LOGIN_TIME
+	</select>
+
+	<insert id="insertLoginLogDetail" parameterClass="Map">
+		INSERT INTO TKS_LOGINLOG(
+			 LOGIN_SEQ
+			,LOGIN_ID
+			,USER_TYPE
+			,LOGIN_FLAG
+			,HTTP_IW_ROUTE
+			,IW_SSL_CLIENT_I_DN
+			,IW_SSL_CLIENT_I_DN_CN
+			,IW_SSL_CLIENT_I_DN_O
+			,IW_SSL_CLIENT_S_DN
+			,SSL_CLIENT_S_DN_CN
+			,SSL_CLIENT_VERIFY
+			,HTTP_IW_MAILPASS
+			,FST_REG_IP
+			,FST_REG_DT
+		) VALUES (
+			 SEQ_LOGOINLOG_LOGIN_SEQ.NEXTVAL
+			,#USER_ID#
+			,#USER_TYPE#
+			,#LOGIN_FLAG#
+			,#HTTP_IW_ROUTE#
+			,#IW_SSL_CLIENT_I_DN#
+			,#IW_SSL_CLIENT_I_DN_CN#
+			,#IW_SSL_CLIENT_I_DN_O#
+			,#IW_SSL_CLIENT_S_DN#
+			,#SSL_CLIENT_S_DN_CN#
+			,#SSL_CLIENT_VERIFY#
+			,#HTTP_IW_MAILPASS#
+			,#USER_IP#
+			,SYSDATE
+		)
+	</insert>
+
+
+	<insert id="insertLoginLogDetailForKLB" parameterClass="Map">
+		INSERT INTO
+				KLB_LOGIN_HISTORY
+		(
+			 LOGIN_DATE
+			,LOGIN_TIME
+			,LOGIN_FLAG
+			,LOGIN_ID
+			,USER_TYPE
+			,OFFICE_ID
+			,COMMITTEE_ID
+			,SCHOOL_ID
+			,SCHOOL_TYPE
+			,GRADE_CODE
+			,HTTP_IW_ROUTE
+			,IW_SSL_CLIENT_I_DN
+			,IW_SSL_CLIENT_I_DN_CN
+			,IW_SSL_CLIENT_I_DN_O
+			,IW_SSL_CLIENT_S_DN
+			,SSL_CLIENT_S_DN_CN
+			,SSL_CLIENT_VERIFY
+			,HTTP_IW_MAILPASS
+			,FST_REG_IP
+		) VALUES (
+			 TO_CHAR(SYSTIMESTAMP, 'YYYYMMDD')
+			,TO_CHAR(SYSTIMESTAMP, 'hh24missff6')
+			,#LOGIN_FLAG#
+			,#USER_ID#
+			,#USER_TYPE#
+			,( SELECT OFFICE_ID    FROM KLB_SCHOOL_AUTH_MASTER WHERE SCHOOL_ID = #SCHOOL_ID# AND ROWNUM=1 )
+			,( SELECT COMMITTEE_ID FROM KLB_SCHOOL_AUTH_MASTER WHERE SCHOOL_ID = #SCHOOL_ID# AND ROWNUM=1 )
+			,#SCHOOL_ID#
+			,#SCHOOL_TYPE#
+			,#GRADE_CODE#
+			,#HTTP_IW_ROUTE#
+			,#IW_SSL_CLIENT_I_DN#
+			,#IW_SSL_CLIENT_I_DN_CN#
+			,#IW_SSL_CLIENT_I_DN_O#
+			,#IW_SSL_CLIENT_S_DN#
+			,#SSL_CLIENT_S_DN_CN#
+			,#SSL_CLIENT_VERIFY#
+			,#HTTP_IW_MAILPASS#
+			,#USER_IP#
+		)
+	</insert>
+
+</sqlMap>

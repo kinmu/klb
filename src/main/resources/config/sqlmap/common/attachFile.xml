@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="file">
+
+	<select id="selectAttachFileInfoByPk" parameterClass="Map" resultClass="HashMap">
+	<![CDATA[
+		/* file.selectAttachFileInfoByPk, */
+	]]>
+		SELECT
+			ATTACHFILE_ID
+			,FILE_SEQ
+			,FILE_TYPE
+			,ATTACHFILE_NAME
+			,ORIGINALFILE_NAME
+			,ATTACHFILE_PATH
+			,DOWN_COUNT
+			,DEL_YN
+			,FILE_SIZE
+			,TO_CHAR(FST_REG_DT,'YYYY/MM/DD') AS FST_REG_DT
+			,FST_REG_PN_ID
+			,FST_REG_IP
+			,FNL_UPD_DT
+			,FNL_UPD_PN_ID
+			,FNL_UPD_IP
+			,FNL_AGT_DT
+			,FNL_AGT_PN_ID
+			,FNL_AGT_IP
+		FROM
+			TKS_ATTACHFILE
+		WHERE
+			ATTACHFILE_ID = #ATTACHFILE_ID#
+		AND FILE_SEQ = #FILE_SEQ#
+	</select>
+
+	<select id="selectAttachFileList" parameterClass="Map" resultClass="HashMap">
+	<![CDATA[
+		/* file.selectAttachFileList, */
+	]]>
+		SELECT
+			TO_NUMBER(ATTACHFILE_ID) AS ATTACHFILE_ID
+			,FILE_SEQ
+			,FILE_TYPE
+			,ATTACHFILE_NAME
+			,ORIGINALFILE_NAME
+			,replace(ATTACHFILE_PATH,#LCMSPATH#,#KLBPATH#) AS ATTACHFILE_PATH
+			,DOWN_COUNT
+			,DEL_YN
+			,FILE_SIZE
+			,TO_CHAR(FST_REG_DT,'YYYY/MM/DD') AS FST_REG_DT
+			,FST_REG_PN_ID
+			,FST_REG_IP
+			,FNL_UPD_DT
+			,FNL_UPD_PN_ID
+			,FNL_UPD_IP
+			,FNL_AGT_DT
+			,FNL_AGT_PN_ID
+			,FNL_AGT_IP
+		FROM
+			TKS_ATTACHFILE
+		WHERE
+			DEL_YN = 'N'
+		<isNotEmpty property="ATTACHFILE_ID">
+		AND ATTACHFILE_ID = #ATTACHFILE_ID#
+		</isNotEmpty>
+		<isEmpty property="ATTACHFILE_ID">
+		AND ATTACHFILE_NAME = #ATTACHFILE_NAME#
+		</isEmpty>
+		ORDER BY
+			ATTACHFILE_ID DESC, FILE_SEQ ASC
+	</select>
+
+	<select id="selectAttachFileList2" parameterClass="Map" resultClass="HashMap">
+	<![CDATA[
+		/* file.selectAttachFileList2, */
+	]]>
+	SELECT * FROM(
+		SELECT
+			TO_NUMBER(ATTACHFILE_ID) AS ATTACHFILE_ID
+			,FILE_SEQ
+			,FILE_TYPE
+			,ATTACHFILE_NAME
+			,ORIGINALFILE_NAME
+			,replace(ATTACHFILE_PATH,#LCMSPATH#,#KLBPATH#) AS ATTACHFILE_PATH
+			,DOWN_COUNT
+			,DEL_YN
+			,FILE_SIZE
+			,TO_CHAR(FST_REG_DT,'YYYY/MM/DD') AS FST_REG_DT
+			,FST_REG_PN_ID
+			,FST_REG_IP
+			,FNL_UPD_DT
+			,FNL_UPD_PN_ID
+			,FNL_UPD_IP
+			,FNL_AGT_DT
+			,FNL_AGT_PN_ID
+			,FNL_AGT_IP
+		FROM
+			TKS_ATTACHFILE
+		WHERE
+			DEL_YN = 'N'
+		<isNotEmpty property="ATTACHFILE_ID">
+		AND ATTACHFILE_ID = #ATTACHFILE_ID#
+		</isNotEmpty>
+		<isEmpty property="ATTACHFILE_ID">
+		AND ATTACHFILE_NAME = #ATTACHFILE_NAME#
+		</isEmpty>
+		ORDER BY
+			ATTACHFILE_ID DESC, FILE_SEQ ASC
+		) WHERE ROWNUM=1
+	</select>
+
+	<select id="selectAttachFileID" parameterClass="map" resultClass="Integer">
+	<![CDATA[
+		/* file.selectAttachFileID,*/
+	]]>
+		SELECT SEQ_ATTACHFILE_ID.NEXTVAL FROM DUAL
+	</select>
+
+	<insert id="insertAttachFileInfo" parameterClass="Map">
+	<![CDATA[
+		/* file.insertAttachFileInfo,*/
+	]]>
+		INSERT INTO TKS_ATTACHFILE (
+			FST_REG_DT,
+			FST_REG_PN_ID,
+			FST_REG_IP,
+			ATTACHFILE_ID,
+			FILE_SEQ,
+			FILE_TYPE,
+			ATTACHFILE_NAME,
+			ORIGINALFILE_NAME,
+			ATTACHFILE_PATH,
+			DOWN_COUNT,
+			DEL_YN,
+			FILE_SIZE
+		) VALUES (
+			SYSDATE
+			,#USER_ID#
+			,#USER_IP#
+			,#ATTACHFILE_ID#
+			,(SELECT NVL(MAX(FILE_SEQ),0) + 1 FROM TKS_ATTACHFILE WHERE ATTACHFILE_ID = #ATTACHFILE_ID#)
+			,#FILE_TYPE#
+			,#ATTACHFILE_NAME#
+			,#ORIGINALFILE_NAME#
+			,#ATTACHFILE_PATH#
+			,0
+			,'N'
+			,#FILE_SIZE#
+		)
+	</insert>
+
+	<update id="updateAttachFileInfo" parameterClass="Map">
+	<![CDATA[
+		/* file.updateAttachFileInfo, */
+	]]>
+		UPDATE TKS_ATTACHFILE
+		SET
+			FILE_TYPE = #FILE_TYPE#
+			,ATTACHFILE_NAME = #ATTACHFILE_NAME#
+			,ORIGINALFILE_NAME = #ORIGINALFILE_NAME#
+			,FILE_SIZE = #FILE_SIZE#
+
+			<isNotEmpty property="DEL_YN">
+			,DEL_YN = #DEL_YN#
+			</isNotEmpty>
+
+			<isNotEmpty property="ATTACHFILE_PATH">
+			,ATTACHFILE_PATH = #ATTACHFILE_PATH#
+			</isNotEmpty>
+
+			<isNotEmpty property="DOWN_COUNT">
+			,DOWN_COUNT = #DOWN_COUNT#
+			</isNotEmpty>
+
+			<isNotEmpty property="FST_REG_DT">
+			,FST_REG_DT = #FST_REG_DT#
+			</isNotEmpty>
+
+			<isNotEmpty property="USER_ID">
+			,FST_REG_PN_ID = #USER_ID#
+			</isNotEmpty>
+
+			<isNotEmpty property="USER_IP">
+			,FST_REG_IP = #USER_IP#
+			</isNotEmpty>
+
+			<isNotEmpty property="FNL_UPD_DT">
+			,FNL_UPD_DT = #FNL_UPD_DT#
+			</isNotEmpty>
+
+			<isNotEmpty property="FNL_UPD_PN_ID">
+			,FNL_UPD_PN_ID = #FNL_UPD_PN_ID#
+			</isNotEmpty>
+
+			<isNotEmpty property="FNL_UPD_IP">
+			,FNL_UPD_IP = #FNL_UPD_IP#
+			</isNotEmpty>
+
+			<isNotEmpty property="FNL_AGT_DT">
+			,FNL_AGT_DT = #FNL_AGT_DT#
+			</isNotEmpty>
+
+			<isNotEmpty property="FNL_AGT_PN_ID">
+			,FNL_AGT_PN_ID = #FNL_AGT_PN_ID#
+			</isNotEmpty>
+
+			<isNotEmpty property="FNL_AGT_IP">
+			,FNL_AGT_IP = ##
+			</isNotEmpty>
+		WHERE
+			ATTACHFILE_ID = #ATTACHFILE_ID#
+			AND FILE_SEQ = #FILE_SEQ#
+	</update>
+
+	<update id="updateOriginalFile" parameterClass="Map">
+	<![CDATA[
+		/* file.updateOriginalFile, */
+	]]>
+		UPDATE TKS_ATTACHFILE
+		SET
+			ATTACHFILE_ID = #ATTACHFILE_ID#
+			,FILE_SEQ = (SELECT NVL(MAX(FILE_SEQ),0) + 1 FROM TKS_ATTACHFILE WHERE ATTACHFILE_ID = #ATTACHFILE_ID#)
+		WHERE
+			ATTACHFILE_ID = #ORIGINAL_ATTACHFILE_ID#
+			AND FILE_SEQ = #ORIGINAL_FILE_SEQ#
+	</update>
+
+	<delete id="deleteAttachFileByAttaFileName" parameterClass="Map">
+	<![CDATA[
+		/* file.deleteAttachFileByAttaFileName, */
+	]]>
+		DELETE FROM TKS_ATTACHFILE
+		WHERE
+		<isNotEmpty property="ATTACHFILE_NAME">
+			ATTACHFILE_NAME = #ATTACHFILE_NAME#
+		</isNotEmpty>
+		<isNotEmpty property="ORIGINALFILE_NAME">
+			<isNotEmpty property="ATTACHFILE_NAME" >
+			AND
+			</isNotEmpty>
+			ORIGINALFILE_NAME = #ORIGINALFILE_NAME#
+		</isNotEmpty>
+	</delete>
+
+	<delete id="deleteAttachFileByAttaFileId" parameterClass="Map">
+	<![CDATA[
+		/* file.deleteAttachFileByAttaFileId,  */
+	]]>
+		DELETE
+			TKS_ATTACHFILE
+		WHERE
+			ATTACHFILE_ID = #ATTACHFILE_ID#
+	</delete>
+
+	<select id="selectMonthFileList" parameterClass="map" resultClass="HashMap">
+	<![CDATA[
+		/* file.selectMonthFileList,*/
+	]]>
+		SELECT * FROM(
+		  SELECT Y
+		         ,M
+		         ,COUNT(*) AS CNT
+		         ,round((SUM(FILE_SIZE)/1024/1024))||'MB' AS FSIZE
+		  FROM(
+		    SELECT NVL(FILE_SIZE,0) AS FILE_SIZE
+		          ,TO_CHAR(FST_REG_DT, 'yyyy')AS Y
+		          ,TO_CHAR(FST_REG_DT, 'mm')AS M
+		    FROM TKS_ATTACHFILE
+		    )
+		    GROUP BY Y,M
+		  ) ORDER BY Y DESC,M DESC
+	</select>
+		<select id="selectFileList" parameterClass="map" resultClass="HashMap">
+	<![CDATA[
+		/* file.selectFileList,*/
+	]]>
+		SELECT * FROM (
+		    SELECT ATTACHFILE_ID
+		          ,FILE_SEQ
+		          ,FILE_TYPE
+		          ,ATTACHFILE_PATH
+		          ,ATTACHFILE_NAME
+		          ,NVL(FILE_SIZE,0) AS FILE_SIZE
+		          ,TO_CHAR(FST_REG_DT, 'yyyy')AS Y
+		          ,TO_CHAR(FST_REG_DT, 'mm')AS M
+		    FROM TKS_ATTACHFILE
+		  ) WHERE Y=#sYear# and M=#sMonth#
+
+	</select>
+
+	<update id="updateFilePath" parameterClass="Map">
+	<![CDATA[
+		/* file.updateFilePath, */
+	]]>
+		UPDATE TKS_ATTACHFILE
+		  SET ATTACHFILE_PATH = #ATTACHFILE_PATH#
+		WHERE ATTACHFILE_ID = #ATTACHFILE_ID#
+		  AND FILE_SEQ = #FILE_SEQ#
+
+	</update>
+
+
+</sqlMap>

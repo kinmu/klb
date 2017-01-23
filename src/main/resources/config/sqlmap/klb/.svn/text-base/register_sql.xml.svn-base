@@ -1,0 +1,1312 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="register">
+
+	<select id="createLibraryID" parameterClass="java.util.Map" resultClass="String">
+	<![CDATA[
+		/* register.createLibraryID */
+	]]>
+		SELECT
+				'KLB' || LPAD(SEQ_LIBRARY_ID.NEXTVAL,10,'0')  as LIBRARY_ID
+		FROM
+				DUAL
+	</select>
+
+	<insert id="insertLibraryInfo" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.insertLibraryInfo */
+	]]>
+		INSERT INTO
+				KLB_LIBRARY_INFO
+		(
+				LIBRARY_ID
+			,	INS_USER_ID
+			,	INS_AUTH_CODE
+			,	INS_DATE
+			,	SCHOOL_ID
+			,	COMMITTEE_ID
+			,	OFFICE_ID
+			,	GRADE_FROM
+			,	GRADE_TO
+			,	CLOSE_FLG
+			,	OPEN_TERM_FROM
+			,	OPEN_TERM_TO
+			,	TITLE
+			,	CONTENT_INTRO
+			,	FILE_PATH
+			,	IMAGE
+			,	THUMBNAIL
+			,	YOBI1
+			,	YOBI2
+			,	YOBI3
+			,	BINARY_NUMBER
+			,	UPD_USER_ID
+			,	UPD_AUTH_CODE
+			,	UPD_DATE
+		) VALUES (
+				#LIBRARY_ID#
+			,	#USER_ID#
+			,	#AUTH_CODE#
+			,	SYSTIMESTAMP
+			,	#SCH_CD#
+			,	#COMMITTEE_ID#
+			,	#OFFICE_ID#
+			,	#GRADE_FROM#
+			,	#GRADE_TO#
+			,	#CLOSE_FLG#
+			,	DECODE(#CLOSE_FLG#,'0',NVL(#OPEN_TERM_FROM#,TO_CHAR(SYSDATE,'yyyymmdd')))
+			,	DECODE(#CLOSE_FLG#,'0',NVL(#OPEN_TERM_TO#,'99991231'))
+			,	#TITLE#
+			,	CASE
+					 WHEN REPLACE(REPLACE(#CONTENT_INTRO#,' ',''),'　','') IS NULL
+					 THEN #TITLE#
+					 ELSE #CONTENT_INTRO#
+				END
+			,	#LIBRARY_FILE_PATH#
+			,	#IMAGE#
+			,	#THUMBNAIL#
+			,	NULL
+			,	NULL
+			,	NULL
+			,	#BINARY_NUMBER#
+			,	#USER_ID#
+			,	#AUTH_CODE#
+			,	SYSTIMESTAMP
+		)
+	</insert>
+
+	<insert id="insertLibraryCategory" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.insertLibraryCategory */
+	]]>
+		MERGE INTO
+				KLB_LIBRARY_CATEGORY a
+		USING
+			(
+				SELECT
+						#LIBRARY_ID#   as LIBRARY_ID
+					,	#CATEGORY_ID#  as CATEGORY_ID
+				FROM
+						DUAL
+			) b
+		ON
+			(
+					a.LIBRARY_ID  = b.LIBRARY_ID
+				AND a.CATEGORY_ID = b.CATEGORY_ID
+			)
+		WHEN NOT MATCHED THEN
+				INSERT
+				(
+						LIBRARY_ID
+					,	CATEGORY_ID
+					,	PARENT_CATEGORY_ID
+					,	INS_USER_ID
+					,	INS_DATE
+					,	UPD_USER_ID
+					,	UPD_DATE
+				) VALUES (
+						#LIBRARY_ID#
+					,	#CATEGORY_ID#
+					,	(	SELECT  PARENT_CATEGORY_ID
+							  FROM  KLB_CATEGORY_MASTER
+							 WHERE  CATEGORY_ID = #CATEGORY_ID#		)
+					,	#USER_ID#
+					,	SYSTIMESTAMP
+					,	#USER_ID#
+					,	SYSTIMESTAMP
+				)
+	</insert>
+
+	<insert id="insertLibraryTag" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.insertLibraryTag */
+	]]>
+		INSERT INTO
+				KLB_LIBRARY_TAG
+		(
+				LIBRARY_ID
+			,	SNO
+			,	TAG
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		) VALUES (
+				#LIBRARY_ID#
+			,	#SNO#
+			,	#TAG#
+			,	#USER_ID#
+			,	SYSTIMESTAMP
+			,	#USER_ID#
+			,	SYSTIMESTAMP
+		)
+	</insert>
+
+	<insert id="insertLibraryFile" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.insertLibraryFile */
+	]]>
+		INSERT INTO
+				KLB_LIBRARY_FILE
+		(
+				LIBRARY_ID
+			,	SNO
+			,	FILE_NAME_BEF
+			,	FILE_NAME_AFT
+			,	FILE_SIZE
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		) VALUES (
+				#LIBRARY_ID#
+			,	#SNO#
+			,	#FILE_NAME_BEF#
+			,	#FILE_NAME_AFT#
+			,	#FILE_SIZE#
+			,	#USER_ID#
+			,	SYSTIMESTAMP
+			,	#USER_ID#
+			,	SYSTIMESTAMP
+		)
+	</insert>
+
+	<insert id="insertLibraryLink" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.insertLibraryLink */
+	]]>
+		INSERT INTO
+				KLB_LIBRARY_LINK
+		(
+				LIBRARY_ID
+			,	SNO
+			,	LINK_ADDRESS
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		) VALUES (
+				#LIBRARY_ID#
+			,	#SNO#
+			,	#LINK_ADDRESS#
+			,	#USER_ID#
+			,	SYSTIMESTAMP
+			,	#USER_ID#
+			,	SYSTIMESTAMP
+		)
+	</insert>
+
+	<insert id="insertLibraryRead" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.insertLibraryRead */
+	]]>
+		INSERT INTO
+				KLB_LIBRARY_READ
+		(
+				LIBRARY_ID
+			,	READ_TIMES
+			,	DOWNLOAD_TIMES
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		) VALUES (
+				#LIBRARY_ID#
+			,	0
+			,	0
+			,	#USER_ID#
+			,	SYSTIMESTAMP
+			,	#USER_ID#
+			,	SYSTIMESTAMP
+		)
+	</insert>
+
+	<select id="selectLibraryInfoForUpdate" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* register.selectLibraryInfoForUpdate */
+	]]>
+		SELECT
+				LIBRARY_ID
+			,	INS_USER_ID
+			,	(	SELECT SCHOOL_NAME || '　　' || NAME
+					  FROM USER_VIEW
+					 WHERE LOGIN_ID = a.INS_USER_ID
+					   AND ROWNUM   = 1					)  as INS_USER_NAME
+			,	INS_AUTH_CODE
+			,	TO_CHAR(INS_DATE, 'yyyy/mm/dd hh24:mm')  as INS_DATE
+			,	SCHOOL_ID
+			,	COMMITTEE_ID
+			,	OFFICE_ID
+			,	GRADE_FROM
+			,	GRADE_TO
+			,	KLB_GET_UNION_TAG(LIBRARY_ID)  as TAG_JOIN
+			,	CLOSE_FLG
+			,	OPEN_TERM_FROM
+			,	DECODE(OPEN_TERM_TO,'99991231','')  as OPEN_TERM_TO
+			,	TITLE
+			,	CONTENT_INTRO
+			,	FILE_PATH
+			,	IMAGE
+			,	THUMBNAIL
+			,	YOBI1
+			,	YOBI2
+			,	YOBI3
+			,	BINARY_NUMBER
+			,	UPD_USER_ID
+			,	UPD_AUTH_CODE
+			,	TO_CHAR(UPD_DATE, 'yyyy/mm/dd hh24:mm')  as UPD_DATE
+		FROM
+				KLB_LIBRARY_INFO  a
+		WHERE
+				LIBRARY_ID	= #LIBRARY_ID#
+			AND DEL_FLG		= '0'
+	</select>
+
+
+	<select id="selectLibraryFileForUpdate" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* register.selectLibraryFileForUpdate */
+	]]>
+		SELECT
+				LIBRARY_ID
+			,	SNO
+			,	FILE_NAME_BEF
+			,	FILE_NAME_AFT
+			,	CASE
+					 WHEN FILE_SIZE > 1024*1024
+					 		THEN ROUND(FILE_SIZE / 1024 / 1024, 1) || 'MByte'
+					 WHEN FILE_SIZE > 1024
+					 		THEN ROUND(FILE_SIZE / 1024, 1) || 'KByte'
+					 ELSE
+					 		FILE_SIZE || 'Byte'
+				END  as FILE_SIZE
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		FROM
+				KLB_LIBRARY_FILE
+		WHERE
+				LIBRARY_ID = #LIBRARY_ID#
+		ORDER BY
+				SNO
+	</select>
+
+	<select id="selectLibraryLinkForUpdate" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* register.selectLibraryLinkForUpdate */
+	]]>
+		SELECT
+				LIBRARY_ID
+			,	SNO
+			,	LINK_ADDRESS
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		FROM
+				KLB_LIBRARY_LINK
+		WHERE
+				LIBRARY_ID = #LIBRARY_ID#
+		ORDER BY
+				SNO
+	</select>
+
+
+	<insert id="insertLibraryInfoHistory" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.insertLibraryInfoHistory */
+	]]>
+		INSERT INTO
+				KLB_LIBRARY_HISTORY
+		(
+				LIBRARY_ID
+			,	HISTORY_SNO
+			,	INS_USER_ID
+			,	INS_AUTH_CODE
+			,	INS_DATE
+			,	SCHOOL_ID
+			,	COMMITTEE_ID
+			,	OFFICE_ID
+			,	GRADE_FROM
+			,	GRADE_TO
+			,	CLOSE_FLG
+			,	OPEN_TERM_FROM
+			,	OPEN_TERM_TO
+			,	TITLE
+			,	CONTENT_INTRO
+			,	FILE_PATH
+			,	IMAGE
+			,	THUMBNAIL
+			,	YOBI1
+			,	YOBI2
+			,	YOBI3
+			,	BINARY_NUMBER
+			,	UPD_USER_ID
+			,	UPD_AUTH_CODE
+			,	UPD_DATE
+		)
+		SELECT
+				LIBRARY_ID
+			,	(	SELECT  NVL(MAX(HISTORY_SNO),0) + 1
+					  FROM  KLB_LIBRARY_HISTORY
+					 WHERE  LIBRARY_ID = a.LIBRARY_ID	)  as HISTORY_SNO
+			,	INS_USER_ID
+			,	INS_AUTH_CODE
+			,	INS_DATE
+			,	SCHOOL_ID
+			,	COMMITTEE_ID
+			,	OFFICE_ID
+			,	GRADE_FROM
+			,	GRADE_TO
+			,	CLOSE_FLG
+			,	OPEN_TERM_FROM
+			,	OPEN_TERM_TO
+			,	TITLE
+			,	CONTENT_INTRO
+			,	FILE_PATH
+			,	IMAGE
+			,	THUMBNAIL
+			,	YOBI1
+			,	YOBI2
+			,	YOBI3
+			,	BINARY_NUMBER
+			,	UPD_USER_ID
+			,	UPD_AUTH_CODE
+			,	UPD_DATE
+		FROM
+				KLB_LIBRARY_INFO  a
+		WHERE
+				<isEmpty property="LIBRARY_ID_LIST">
+				LIBRARY_ID = #LIBRARY_ID#
+				</isEmpty>
+				<isNotEmpty property="LIBRARY_ID_LIST">
+				<iterate property="LIBRARY_ID_LIST" prepend="LIBRARY_ID IN" open="(" close=")" conjunction="," >
+				#LIBRARY_ID_LIST[]#
+				</iterate>
+				</isNotEmpty>
+	</insert>
+
+	<insert id="insertLibraryCategoryHistory" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.insertLibraryCategoryHistory */
+	]]>
+		INSERT INTO
+				KLB_HISTORY_CATEGORY
+		(
+				LIBRARY_ID
+			,	HISTORY_SNO
+			,	CATEGORY_ID
+			,	PARENT_CATEGORY_ID
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		)
+		SELECT
+				LIBRARY_ID
+			,	(	SELECT  MAX(HISTORY_SNO)
+					  FROM  KLB_LIBRARY_HISTORY
+					 WHERE  LIBRARY_ID = a.LIBRARY_ID	)  as HISTORY_SNO
+			,	CATEGORY_ID
+			,	PARENT_CATEGORY_ID
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		FROM
+				KLB_LIBRARY_CATEGORY  a
+		WHERE
+				<isEmpty property="LIBRARY_ID_LIST">
+				LIBRARY_ID = #LIBRARY_ID#
+				</isEmpty>
+				<isNotEmpty property="LIBRARY_ID_LIST">
+				<iterate property="LIBRARY_ID_LIST" prepend="LIBRARY_ID IN" open="(" close=")" conjunction="," >
+				#LIBRARY_ID_LIST[]#
+				</iterate>
+				</isNotEmpty>
+	</insert>
+
+	<insert id="insertLibraryTagHistory" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.insertLibraryTagHistory */
+	]]>
+		INSERT INTO
+				KLB_HISTORY_TAG
+		(
+				LIBRARY_ID
+			,	HISTORY_SNO
+			,	SNO
+			,	TAG
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		)
+		SELECT
+				LIBRARY_ID
+			,	(	SELECT  MAX(HISTORY_SNO)
+					  FROM  KLB_LIBRARY_HISTORY
+					 WHERE  LIBRARY_ID = a.LIBRARY_ID	)  as HISTORY_SNO
+			,	SNO
+			,	TAG
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		FROM
+				KLB_LIBRARY_TAG  a
+		WHERE
+				<isEmpty property="LIBRARY_ID_LIST">
+				LIBRARY_ID = #LIBRARY_ID#
+				</isEmpty>
+				<isNotEmpty property="LIBRARY_ID_LIST">
+				<iterate property="LIBRARY_ID_LIST" prepend="LIBRARY_ID IN" open="(" close=")" conjunction="," >
+				#LIBRARY_ID_LIST[]#
+				</iterate>
+				</isNotEmpty>
+	</insert>
+
+	<insert id="insertLibraryFileHistory" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.insertLibraryFileHistory */
+	]]>
+		INSERT INTO
+				KLB_HISTORY_FILE
+		(
+				LIBRARY_ID
+			,	HISTORY_SNO
+			,	SNO
+			,	FILE_NAME_BEF
+			,	FILE_NAME_AFT
+			,	FILE_SIZE
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		)
+		SELECT
+				LIBRARY_ID
+			,	(	SELECT  MAX(HISTORY_SNO)
+					  FROM  KLB_LIBRARY_HISTORY
+					 WHERE  LIBRARY_ID = a.LIBRARY_ID	)  as HISTORY_SNO
+			,	SNO
+			,	FILE_NAME_BEF
+			,	FILE_NAME_AFT
+			,	FILE_SIZE
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		FROM
+				KLB_LIBRARY_FILE  a
+		WHERE
+				<isEmpty property="LIBRARY_ID_LIST">
+				LIBRARY_ID = #LIBRARY_ID#
+				</isEmpty>
+				<isNotEmpty property="LIBRARY_ID_LIST">
+				<iterate property="LIBRARY_ID_LIST" prepend="LIBRARY_ID IN" open="(" close=")" conjunction="," >
+				#LIBRARY_ID_LIST[]#
+				</iterate>
+				</isNotEmpty>
+	</insert>
+
+	<insert id="insertLibraryLinkHistory" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.insertLibraryLinkHistory */
+	]]>
+		INSERT INTO
+				KLB_HISTORY_LINK
+		(
+				LIBRARY_ID
+			,	HISTORY_SNO
+			,	SNO
+			,	LINK_ADDRESS
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		)
+		SELECT
+				LIBRARY_ID
+			,	(	SELECT  MAX(HISTORY_SNO)
+					  FROM  KLB_LIBRARY_HISTORY
+					 WHERE  LIBRARY_ID = a.LIBRARY_ID	)  as HISTORY_SNO
+			,	SNO
+			,	LINK_ADDRESS
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		FROM
+				KLB_LIBRARY_LINK  a
+		WHERE
+				<isEmpty property="LIBRARY_ID_LIST">
+				LIBRARY_ID = #LIBRARY_ID#
+				</isEmpty>
+				<isNotEmpty property="LIBRARY_ID_LIST">
+				<iterate property="LIBRARY_ID_LIST" prepend="LIBRARY_ID IN" open="(" close=")" conjunction="," >
+				#LIBRARY_ID_LIST[]#
+				</iterate>
+				</isNotEmpty>
+	</insert>
+
+	<delete id="deleteLibraryCategory" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.deleteLibraryCategory */
+	]]>
+		DELETE FROM
+				KLB_LIBRARY_CATEGORY
+		WHERE
+				LIBRARY_ID = #LIBRARY_ID#
+	</delete>
+
+	<delete id="deleteLibraryTag" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.deleteLibraryTag */
+	]]>
+		DELETE FROM
+				KLB_LIBRARY_TAG
+		WHERE
+				LIBRARY_ID = #LIBRARY_ID#
+	</delete>
+
+	<delete id="deleteLibraryFile" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.deleteLibraryFile */
+	]]>
+		DELETE FROM
+				KLB_LIBRARY_FILE
+		WHERE
+				LIBRARY_ID		= #LIBRARY_ID#
+			<isNotEmpty property="FILE_NAME_AFT">
+			AND FILE_NAME_AFT	= #FILE_NAME_AFT#
+			</isNotEmpty>
+	</delete>
+
+	<delete id="deleteLibraryLink" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.deleteLibraryLink */
+	]]>
+		DELETE FROM
+				KLB_LIBRARY_LINK
+		WHERE
+				LIBRARY_ID = #LIBRARY_ID#
+	</delete>
+
+	<update id="updateLibraryInfo" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.updateLibraryInfo */
+	]]>
+		UPDATE
+				KLB_LIBRARY_INFO
+		SET
+				GRADE_FROM			= #GRADE_FROM#
+			,	GRADE_TO			= #GRADE_TO#
+			,	CLOSE_FLG			= #CLOSE_FLG#
+			,	OPEN_TERM_FROM		= DECODE(#CLOSE_FLG#,'0',NVL(#OPEN_TERM_FROM#,TO_CHAR(SYSDATE,'yyyymmdd')))
+			,	OPEN_TERM_TO		= DECODE(#CLOSE_FLG#,'0',NVL(#OPEN_TERM_TO#,'99991231'))
+			,	TITLE				= #TITLE#
+			,	CONTENT_INTRO		= CASE
+										   WHEN REPLACE(REPLACE(#CONTENT_INTRO#,' ',''),'　','') IS NULL
+										   THEN #TITLE#
+										   ELSE #CONTENT_INTRO#
+									  END
+			<isNotEmpty property="IMAGE">
+			,	IMAGE				= #IMAGE#
+			,	THUMBNAIL			= #THUMBNAIL#
+			</isNotEmpty>
+			<isEmpty property="IMAGE" >
+			<isEqual property="COVER_IMAGE_DEL_FLAG" compareValue="1">
+			,	IMAGE				= NULL
+			,	THUMBNAIL			= NULL
+			</isEqual>
+			</isEmpty>
+			<isNotEmpty property="YOBI1">
+			,	YOBI1				= #YOBI1#
+			</isNotEmpty>
+			<isNotEmpty property="YOBI1">
+			,	YOBI2				= #YOBI2#
+			</isNotEmpty>
+			<isNotEmpty property="YOBI1">
+			,	YOBI3				= #YOBI3#
+			</isNotEmpty>
+			,	UPD_USER_ID			= #USER_ID#
+			,	UPD_AUTH_CODE		= #AUTH_CODE#
+			,	UPD_DATE			= SYSTIMESTAMP
+		WHERE
+				LIBRARY_ID = #LIBRARY_ID#
+	</update>
+
+
+	<sql id="selectRegisteredLibraryListSql">
+		SELECT
+				a.LIBRARY_ID
+			,	a.INS_USER_ID
+			,	a.INS_AUTH_CODE
+			,	TO_CHAR(a.INS_DATE, 'yyyy/mm/dd hh24:mm')  as INS_DATE
+			,	KLB_GET_SUBSTR(a.INS_USER_NAME, 27)  as INS_USER_NAME_PC
+			,	KLB_GET_SUBSTR(a.INS_USER_NAME, 14)  as INS_USER_NAME_TABLET
+			,	a.SCHOOL_ID
+			,	KLB_GET_SUBSTR(a.SCHOOL_NAME, 27)  as SCHOOL_NAME_PC
+			,	KLB_GET_SUBSTR(a.SCHOOL_NAME, 14)  as SCHOOL_NAME_TABLET
+			,	a.COMMITTEE_ID
+			,	a.OFFICE_ID
+			,	KLB_GET_CODE_NAME('0018', a.GRADE_FROM)  as GRADE_FROM_NAME
+			,	KLB_GET_CODE_NAME('0018', a.GRADE_TO)    as GRADE_TO_NAME
+			,	a.CLOSE_FLG
+			,	a.OPEN_TERM_FROM
+			,	a.OPEN_TERM_TO
+			,	KLB_GET_SUBSTR(a.TITLE, 33)  as TITLE_PC
+			,	KLB_GET_SUBSTR(a.TITLE, 22)  as TITLE_TABLET
+			,	a.FILE_PATH
+			,	a.THUMBNAIL
+			,	a.YOBI1
+			,	a.YOBI2
+			,	a.YOBI3
+			,	a.BINARY_NUMBER
+			,	a.DEL_FLG
+			,	a.UPD_USER_ID
+			,	a.UPD_AUTH_CODE
+			,	TO_CHAR(a.UPD_DATE, 'yyyy/mm/dd hh24:mm')  as UPD_DATE
+			,	KLB_GET_SUBSTR(KLB_GET_UNION_CATEGORY(a.LIBRARY_ID, '1'), 27)  as CATEGORY_PC
+			,	KLB_GET_SUBSTR(KLB_GET_UNION_CATEGORY(a.LIBRARY_ID, '1'), 14)  as CATEGORY_TABLET
+			,	KLB_GET_SUBSTR(KLB_GET_UNION_TAG(a.LIBRARY_ID)          , 27)  as TAG_PC
+			,	KLB_GET_SUBSTR(KLB_GET_UNION_TAG(a.LIBRARY_ID)          , 14)  as TAG_TABLET
+			,	a.OPEN_CONDITION
+			,	KLB_GET_CODE_NAME('K002', a.OPEN_CONDITION)  as OPEN_CONDITION_NAME
+			,	b.READ_TIMES
+			,	b.DOWNLOAD_TIMES
+		FROM
+				(
+					SELECT
+							x.*
+						,	CASE WHEN x.DEL_FLG = '1'
+										THEN '05'
+								 WHEN x.CLOSE_FLG = '1'
+										THEN '02'
+								 WHEN TO_CHAR(SYSDATE,'yyyymmdd') BETWEEN x.OPEN_TERM_FROM AND x.OPEN_TERM_TO
+										THEN '04'
+								 ELSE
+								 		'03'
+							END  as OPEN_CONDITION
+					<isNotEqual property="AUTH_CODE" compareValue="01">
+						,	NULL  as INS_USER_NAME
+						,	NULL  as SCHOOL_NAME
+					FROM
+							KLB_LIBRARY_INFO  x
+					WHERE
+							INS_USER_ID = #USER_ID#
+					</isNotEqual>
+					<isEqual property="AUTH_CODE" compareValue="01">
+						,	y.NAME  as INS_USER_NAME
+						,	y.SCHOOL_NAME
+					FROM
+							KLB_LIBRARY_INFO  x
+						,	USER_VIEW         y
+					WHERE
+							y.LOGIN_ID = x.INS_USER_ID
+						<isNotEmpty property="SEARCH_INS_USER_NAME">
+						AND y.NAME  LIKE '%'||#SEARCH_INS_USER_NAME#||'%'
+						</isNotEmpty>
+						<isEqual property="SEARCH_ALL_DATA_FLG" compareValue="0">
+						AND x.INS_USER_ID = #USER_ID#
+						</isEqual>
+					</isEqual>
+						<isEqual property="SEARCH_OPEN_CONDITION" compareValue="05">
+						AND x.DEL_FLG = '1'
+						</isEqual>
+						<isNotEqual property="SEARCH_OPEN_CONDITION" compareValue="05">
+						AND x.DEL_FLG = '0'
+						</isNotEqual>
+						<isEqual property="SEARCH_OPEN_CONDITION" compareValue="02">
+						AND x.CLOSE_FLG = '1'
+						</isEqual>
+						<isNotEmpty property="SEARCH_GRADE_FROM">
+						AND <![CDATA[ x.GRADE_TO >= #SEARCH_GRADE_FROM# ]]>
+						</isNotEmpty>
+						<isNotEmpty property="SEARCH_GRADE_TO">
+						AND <![CDATA[ x.GRADE_FROM <= #SEARCH_GRADE_TO# ]]>
+						</isNotEmpty>
+						<isNotEmpty property="SEARCH_INS_DATE_FROM">
+						AND <![CDATA[ TO_CHAR(x.INS_DATE,'yyyymmdd') >= #SEARCH_INS_DATE_FROM# ]]>
+						</isNotEmpty>
+						<isNotEmpty property="SEARCH_INS_DATE_TO">
+						AND <![CDATA[ TO_CHAR(x.INS_DATE,'yyyymmdd') <= #SEARCH_INS_DATE_TO# ]]>
+						</isNotEmpty>
+						<isNotEmpty property="SEARCH_KEYWORD">
+						AND (		x.LIBRARY_ID LIKE '%'||#SEARCH_KEYWORD#
+								OR	x.TITLE      LIKE '%'||#SEARCH_KEYWORD#||'%'
+								OR	EXISTS (	SELECT  1
+												  FROM  KLB_LIBRARY_TAG
+												 WHERE  LIBRARY_ID = x.LIBRARY_ID
+												   AND  TAG        = #SEARCH_KEYWORD#	)	)
+						</isNotEmpty>
+				)  a
+			,	KLB_LIBRARY_READ  b
+			<isNotEmpty property="SEARCH_CATEGORY_ID">
+			,	KLB_LIBRARY_CATEGORY  c
+			</isNotEmpty>
+		WHERE
+				b.LIBRARY_ID     = a.LIBRARY_ID
+			<isNotEqual property="SEARCH_OPEN_CONDITION" compareValue="01">
+			<isNotEqual property="SEARCH_OPEN_CONDITION" compareValue="02">
+			<isNotEqual property="SEARCH_OPEN_CONDITION" compareValue="05">
+			AND a.OPEN_CONDITION = #SEARCH_OPEN_CONDITION#
+			</isNotEqual>
+			</isNotEqual>
+			</isNotEqual>
+			<isNotEmpty property="SEARCH_CATEGORY_ID">
+			AND c.LIBRARY_ID     = a.LIBRARY_ID
+			AND c.CATEGORY_ID    = #SEARCH_CATEGORY_ID#
+			</isNotEmpty>
+		ORDER BY
+				<isEqual property="SEARCH_SORT_CODE" compareValue="01">
+				a.INS_DATE DESC
+				</isEqual>
+				<isEqual property="SEARCH_SORT_CODE" compareValue="02">
+				a.INS_DATE ASC
+				</isEqual>
+				<isEqual property="SEARCH_SORT_CODE" compareValue="03">
+				a.UPD_DATE DESC
+				</isEqual>
+				<isEqual property="SEARCH_SORT_CODE" compareValue="04">
+				a.UPD_DATE ASC
+				</isEqual>
+				<isEqual property="SEARCH_SORT_CODE" compareValue="05">
+				b.READ_TIMES DESC
+				</isEqual>
+				<isEqual property="SEARCH_SORT_CODE" compareValue="06">
+				b.READ_TIMES ASC
+				</isEqual>
+				<isEqual property="SEARCH_SORT_CODE" compareValue="07">
+				b.DOWNLOAD_TIMES DESC
+				</isEqual>
+				<isEqual property="SEARCH_SORT_CODE" compareValue="08">
+				b.DOWNLOAD_TIMES ASC
+				</isEqual>
+				<isEqual property="SEARCH_SORT_CODE" compareValue="09">
+				a.OPEN_CONDITION ASC, a.INS_DATE ASC
+				</isEqual>
+				<isEqual property="SEARCH_SORT_CODE" compareValue="10">
+				a.OPEN_CONDITION DESC, a.INS_DATE DESC
+				</isEqual>
+	</sql>
+
+	<select id="selectRegisteredLibraryListCount" parameterClass="java.util.Map" resultClass="Integer">
+	<![CDATA[
+		/* register.selectRegisteredLibraryListCount */
+	]]>
+		<include refid="common.beforeCountPaginatedList"/>
+		<include refid="register.selectRegisteredLibraryListSql"/>
+		<include refid="common.afterCountPaginatedList"/>
+	</select>
+
+	<select id="selectRegisteredLibraryList" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* register.selectRegisteredLibraryList */
+	]]>
+		<include refid="common.beforePaginatedList"/>
+		<include refid="register.selectRegisteredLibraryListSql"/>
+		<include refid="common.afterPaginatedList"/>
+	</select>
+
+
+	<select id="selectFileListForDelete" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* register.selectFileListForDelete */
+	]]>
+		SELECT
+				a.FILE_PATH
+			,	b.FILE_NAME_AFT  as FILE_NAME
+			,	a.FILE_PATH || b.FILE_NAME_AFT  as FILE_SRC
+		FROM
+				KLB_LIBRARY_INFO  a
+			,	KLB_LIBRARY_FILE  b
+		WHERE
+				<iterate property="LIBRARY_ID_LIST" prepend="a.LIBRARY_ID IN" open="(" close=")" conjunction="," >
+				#LIBRARY_ID_LIST[]#
+				</iterate>
+			AND b.LIBRARY_ID  = a.LIBRARY_ID
+	</select>
+
+
+	<update id="deleteLibraryInfo" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.deleteLibraryInfo */
+	]]>
+		UPDATE
+				KLB_LIBRARY_INFO
+		SET
+				DEL_FLG   = '1'
+		WHERE
+				<iterate property="LIBRARY_ID_LIST" prepend="LIBRARY_ID IN" open="(" close=")" conjunction="," >
+				#LIBRARY_ID_LIST[]#
+				</iterate>
+	</update>
+
+
+	<select id="selectMultiLibraryDataForDelete" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* register.selectMultiLibraryDataForDelete */
+	]]>
+		SELECT
+				REGIST_DATE
+		FROM
+				KLB_MULTI_REGIST
+		WHERE
+				INS_USER_ID = #USER_ID#
+			<isNotEmpty property="PREV_WEEK">
+			OR <![CDATA[ INS_DATE < TO_DATE(#PREV_WEEK#,'yyyymmdd') ]]>
+			</isNotEmpty>
+	</select>
+
+
+	<delete id="deleteMultiLibraryData" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.deleteMultiLibraryData */
+	]]>
+		DELETE FROM
+				KLB_MULTI_REGIST
+		WHERE
+			<isEmpty property="PREV_WEEK">
+				INS_USER_ID = #USER_ID#
+			</isEmpty>
+			<isNotEmpty property="PREV_WEEK">
+				<![CDATA[ INS_DATE < TO_DATE(#PREV_WEEK#,'yyyymmdd') ]]>
+			</isNotEmpty>
+	</delete>
+
+
+	<delete id="deleteMultiLibraryDataFile" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.deleteMultiLibraryDataFile */
+	]]>
+		DELETE FROM
+				KLB_MULTI_REGIST_FILE
+		WHERE
+			<isEmpty property="PREV_WEEK">
+				INS_USER_ID = #USER_ID#
+			</isEmpty>
+			<isNotEmpty property="PREV_WEEK">
+				<![CDATA[ INS_DATE < TO_DATE(#PREV_WEEK#,'yyyymmdd') ]]>
+			</isNotEmpty>
+	</delete>
+
+
+	<delete id="deleteMultiLibraryDataLink" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.deleteMultiLibraryDataLink */
+	]]>
+		DELETE FROM
+				KLB_MULTI_REGIST_LINK
+		WHERE
+			<isEmpty property="PREV_WEEK">
+				INS_USER_ID = #USER_ID#
+			</isEmpty>
+			<isNotEmpty property="PREV_WEEK">
+				<![CDATA[ INS_DATE < TO_DATE(#PREV_WEEK#,'yyyymmdd') ]]>
+			</isNotEmpty>
+	</delete>
+
+
+	<insert id="insertMultiLibraryExcelFile" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.insertMultiLibraryExcelFile */
+	]]>
+		INSERT INTO
+				KLB_MULTI_REGIST_FILE
+		(
+				REGIST_DATE
+			,	ROW_NO
+			,	SNO
+			,	FILE_NAME
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		) VALUES (
+				#REGIST_DATE#
+			,	#ROW_NO#
+			,	#SNO#
+			,	REPLACE(CASE WHEN SUBSTR(#FILE_NAME#,1,1) IN ('/', '\')
+							 THEN SUBSTR(#FILE_NAME#,2)
+							 ELSE #FILE_NAME# END, '\', '/')
+			,	#USER_ID#
+			,	SYSTIMESTAMP
+			,	#USER_ID#
+			,	SYSTIMESTAMP
+		)
+	</insert>
+
+
+	<insert id="insertMultiLibraryExcelLink" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.insertMultiLibraryExcelLink */
+	]]>
+		INSERT INTO
+				KLB_MULTI_REGIST_LINK
+		(
+				REGIST_DATE
+			,	ROW_NO
+			,	SNO
+			,	LINK_ADDRESS
+			,	IS_DOMAIN_FLG
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		) VALUES (
+				#REGIST_DATE#
+			,	#ROW_NO#
+			,	#SNO#
+			,	#LINK_ADDRESS#
+			,	1
+			,	#USER_ID#
+			,	SYSTIMESTAMP
+			,	#USER_ID#
+			,	SYSTIMESTAMP
+		)
+	</insert>
+
+
+	<insert id="insertMultiLibraryExcel" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.insertMultiLibraryExcel */
+	]]>
+		INSERT INTO
+				KLB_MULTI_REGIST
+		(
+				REGIST_DATE
+			,	ROW_NO
+			,	LIBRARY_ID
+			,	CATEGORY_ID_JOIN
+			,	CATEGORY_CNT
+			,	CATEGORY_ERROR
+			,	GRADE_FROM
+			,	GRADE_TO
+			,	GRADE_ERROR
+			,	TAG_JOIN
+			,	TITLE
+			,	TITLE_ERROR
+			,	CONTENT_INTRO
+			,	CLOSE_FLG
+			,	OPEN_TERM_FROM
+			,	OPEN_TERM_TO
+			,	OPEN_TERM_ERROR
+			,	FILE_PATH
+			,	IMAGE
+			,	FILE_CNT
+			,	FILE_SIZE
+			,	FILE_ERROR
+			,	NOT_EXIST_FILE_NO
+			,	LINK_CNT
+			,	LINK_ERROR
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		) VALUES (
+				#REGIST_DATE#
+			,	#ROW_NO#
+			,	NULL
+			,	#CATEGORY_ID_1#
+				|| NVL2(#CATEGORY_ID_2#, ','||#CATEGORY_ID_2#, '')
+				|| NVL2(#CATEGORY_ID_3#, ','||#CATEGORY_ID_3#, '')
+				|| NVL2(#CATEGORY_ID_4#, ','||#CATEGORY_ID_4#, '')
+				|| NVL2(#CATEGORY_ID_5#, ','||#CATEGORY_ID_5#, '')
+			,		NVL2(#CATEGORY_ID_1#, 1, 0) + NVL2(#CATEGORY_ID_2#, 1, 0)
+				+	NVL2(#CATEGORY_ID_3#, 1, 0) + NVL2(#CATEGORY_ID_4#, 1, 0) + NVL2(#CATEGORY_ID_5#, 1, 0)
+			,	CASE
+					 WHEN		(#CATEGORY_ID_1# IS NOT NULL AND KLB_GET_CODE_NAME('CATE',#CATEGORY_ID_1#) IS NULL)
+							OR	(#CATEGORY_ID_2# IS NOT NULL AND KLB_GET_CODE_NAME('CATE',#CATEGORY_ID_2#) IS NULL)
+							OR	(#CATEGORY_ID_3# IS NOT NULL AND KLB_GET_CODE_NAME('CATE',#CATEGORY_ID_3#) IS NULL)
+							OR	(#CATEGORY_ID_4# IS NOT NULL AND KLB_GET_CODE_NAME('CATE',#CATEGORY_ID_4#) IS NULL)
+							OR	(#CATEGORY_ID_5# IS NOT NULL AND KLB_GET_CODE_NAME('CATE',#CATEGORY_ID_5#) IS NULL)
+					 THEN 'X004'
+					 ELSE NULL
+				END
+			,	#GRADE_FROM#
+			,	#GRADE_TO#
+			,	CASE
+					 WHEN #GRADE_FROM# IS NULL OR #GRADE_TO# IS NULL
+					 THEN 'X003'
+					 WHEN    KLB_GET_CODE_NAME('0018',#GRADE_FROM#) IS NULL
+					 	  OR KLB_GET_CODE_NAME('0018',#GRADE_TO#)   IS NULL
+					 THEN 'X004'
+					 WHEN <![CDATA[ TO_NUMBER(#GRADE_FROM#) > TO_NUMBER(#GRADE_TO#) ]]>
+					 THEN 'X006'
+					 ELSE NULL
+				END
+			,	REPLACE(REPLACE(REPLACE(#TAG_JOIN#,'、','，'),',','，'),'､','，')
+			,	#TITLE#
+			,	NVL2(#TITLE#, NULL, 'X003')
+			,	CASE
+					 WHEN REPLACE(REPLACE(#CONTENT_INTRO#,' ',''),'　','') IS NULL
+					 THEN #TITLE#
+					 ELSE #CONTENT_INTRO#
+				END
+			,	DECODE(#CLOSE_FLG#,'1','1','0')
+			,	CASE
+					 WHEN DECODE(#CLOSE_FLG#,'1','1','0') = '1'
+					 THEN NULL
+					 WHEN #OPEN_TERM_FROM# IS NULL
+					 THEN TO_CHAR(SYSDATE,'yyyymmdd')
+					 WHEN KLB_IS_DATE(#OPEN_TERM_FROM#,'dd-mm-yyyy') = 1
+					 THEN TO_CHAR(TO_DATE(#OPEN_TERM_FROM#,'dd-mm-yyyy'),'yyyymmdd')
+					 ELSE NULL
+				END
+			,	CASE
+					 WHEN     DECODE(#CLOSE_FLG#,'1','1','0') = '0'
+					      AND KLB_IS_DATE(#OPEN_TERM_TO#,'dd-mm-yyyy') = 1
+					 THEN TO_CHAR(TO_DATE(#OPEN_TERM_TO#,'dd-mm-yyyy'),'yyyymmdd')
+					 ELSE NULL
+				END
+			,	CASE
+					 WHEN DECODE(#CLOSE_FLG#,'1','1','0') = '1'
+					 THEN NULL
+					 ELSE
+						  CASE
+						       WHEN     #OPEN_TERM_FROM# IS NOT NULL
+					                AND KLB_IS_DATE(#OPEN_TERM_FROM#,'dd-mm-yyyy') = 0
+					           THEN 'X005'
+					           WHEN #OPEN_TERM_TO# IS NOT NULL
+					           THEN
+					                CASE
+					                     WHEN KLB_IS_DATE(#OPEN_TERM_TO#,'dd-mm-yyyy') = 0
+					                     THEN 'X005'
+					                     WHEN TO_DATE(NVL(#OPEN_TERM_FROM#,TO_CHAR(SYSDATE,'dd-mm-yyyy')),'dd-mm-yyyy') > TO_DATE(#OPEN_TERM_TO#,'dd-mm-yyyy')
+					                     THEN 'X006'
+					                     ELSE NULL
+					                END
+					           ELSE NULL
+					      END
+				END
+			,	#MULTI_FILE_PATH#
+			,	#IMAGE#
+			,	#FILE_CNT#
+			,	0
+			,	#FILE_ERROR#
+			,	NULL
+			,	#LINK_CNT#
+			,	NULL
+			,	#USER_ID#
+			,	SYSTIMESTAMP
+			,	#USER_ID#
+			,	SYSTIMESTAMP
+		)
+	</insert>
+
+
+	<select id="checkMultiLibraryExcelData" parameterClass="java.util.Map" resultClass="String">
+	<![CDATA[
+		/* register.checkMultiLibraryExcelData */
+	]]>
+		SELECT
+				'1' as NG_FLG
+		FROM
+				KLB_MULTI_REGIST  a
+		WHERE
+				REGIST_DATE  = #REGIST_DATE#
+			AND INS_USER_ID  = #USER_ID#
+			AND (
+					   CATEGORY_ERROR   IS NOT NULL
+					OR GRADE_ERROR      IS NOT NULL
+					OR TITLE_ERROR      IS NOT NULL
+					OR OPEN_TERM_ERROR  IS NOT NULL
+					OR FILE_ERROR       IS NOT NULL
+					OR LINK_ERROR       IS NOT NULL
+				)
+			AND ROWNUM  = 1
+	</select>
+
+
+	<select id="selectMultiLibraryFileNameList" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* register.selectMultiLibraryFileNameList */
+	]]>
+		SELECT
+				ROW_NO
+			,	SNO
+			,	FILE_NAME
+		FROM
+			(
+				SELECT
+						ROW_NO
+					,	0  as SNO
+					,	IMAGE  as FILE_NAME
+				FROM
+						KLB_MULTI_REGIST
+				WHERE
+						REGIST_DATE  = #REGIST_DATE#
+					AND INS_USER_ID  = #USER_ID#
+					AND IMAGE        IS NOT NULL
+
+				UNION ALL
+
+				SELECT
+						ROW_NO
+					,	SNO
+					,	FILE_NAME
+				FROM
+						KLB_MULTI_REGIST_FILE
+				WHERE
+						REGIST_DATE = #REGIST_DATE#
+					AND INS_USER_ID = #USER_ID#
+			)
+		ORDER BY
+				ROW_NO, SNO
+	</select>
+
+
+	<update id="updateMultiLibraryFileExistInfo" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.updateMultiLibraryFileExistInfo */
+	]]>
+		UPDATE
+				KLB_MULTI_REGIST
+		SET
+				FILE_SIZE			= #FILE_SIZE#
+			,	NOT_EXIST_FILE_NO	= #NOT_EXIST_FILE_NO#
+			,	FILE_ERROR			= NVL2(#NOT_EXIST_FILE_NO#, 'X010', NULL)
+		WHERE
+				REGIST_DATE			= #REGIST_DATE#
+			AND INS_USER_ID			= #USER_ID#
+			AND ROW_NO				= #ROW_NO#
+	</update>
+
+
+	<select id="selectMultiLibraryExcelData" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* register.selectMultiLibraryExcelData */
+	]]>
+		SELECT
+				REGIST_DATE
+			,	ROW_NO
+			,	LIBRARY_ID
+			,	KLB_GET_SUBSTR(
+					KLB_GET_CODE_NAME('CATE3',SUBSTR(CATEGORY_ID_JOIN,1,3))
+					||
+					DECODE(CATEGORY_CNT,1,'',' 外'||(CATEGORY_CNT-1)||'件'), 12)  as CATEGORY_PC
+			,	KLB_GET_CODE_NAME('CATE3',SUBSTR(CATEGORY_ID_JOIN,1,3))
+				||
+				DECODE(CATEGORY_CNT,1,'',' 外'||(CATEGORY_CNT-1)||'件')  as CATEGORY_TABLET
+			,	CATEGORY_ERROR
+			,	KLB_GET_CODE_NAME('0018',GRADE_FROM)  as GRADE_FROM
+			,	KLB_GET_CODE_NAME('0018',GRADE_TO)    as GRADE_TO
+			,	GRADE_ERROR
+			,	KLB_GET_SUBSTR(TITLE, 35)  as TITLE_PC
+			,	KLB_GET_SUBSTR(TITLE, 12)  as TITLE_TABLET
+			,	TITLE_ERROR
+			,	CLOSE_FLG
+			,	TO_CHAR(TO_DATE(OPEN_TERM_FROM,'yyyymmdd'),'yyyy/mm/dd')  as OPEN_TERM_FROM
+			,	TO_CHAR(TO_DATE(OPEN_TERM_TO,'yyyymmdd'),'yyyy/mm/dd')    as OPEN_TERM_TO
+			,	OPEN_TERM_ERROR
+			,	FILE_CNT
+			,	LINK_CNT
+			,	FILE_ERROR
+			,	LINK_ERROR
+			,	NOT_EXIST_FILE_NO
+			,	SUM(FILE_SIZE) OVER () as SUM_FILE_SIZE
+		FROM
+				KLB_MULTI_REGIST
+		WHERE
+				<isNotEmpty property="REGIST_DATE">
+				REGIST_DATE  = #REGIST_DATE#
+				</isNotEmpty>
+				<isEmpty property="REGIST_DATE">
+				REGIST_DATE  = ( SELECT MAX(REGIST_DATE)
+								   FROM KLB_MULTI_REGIST
+								  WHERE INS_USER_ID = #USER_ID# )
+				</isEmpty>
+			AND INS_USER_ID  = #USER_ID#
+		ORDER BY
+				ROW_NO
+	</select>
+
+
+	<select id="selectMultiLibraryForRegist" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* register.selectMultiLibraryForRegist */
+	]]>
+		SELECT
+				REGIST_DATE  as BINARY_NUMBER
+			,	ROW_NO
+			,	CATEGORY_ID_JOIN
+			,	GRADE_FROM
+			,	GRADE_TO
+			,	TAG_JOIN
+			,	TITLE
+			,	CONTENT_INTRO
+			,	CLOSE_FLG
+			,	OPEN_TERM_FROM
+			,	OPEN_TERM_TO
+			,	FILE_PATH
+			,	IMAGE
+		FROM
+				KLB_MULTI_REGIST
+		WHERE
+				REGIST_DATE  = #REGIST_DATE#
+			AND INS_USER_ID  = #USER_ID#
+			AND LIBRARY_ID   IS NULL
+		ORDER BY
+				ROW_NO
+	</select>
+
+
+	<select id="selectMultiLibraryFileForRegist" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* register.selectMultiLibraryFileForRegist */
+	]]>
+		SELECT
+				REGIST_DATE
+			,	ROW_NO
+			,	SNO
+			,	FILE_NAME
+		FROM
+				KLB_MULTI_REGIST_FILE
+		WHERE
+				REGIST_DATE  = #REGIST_DATE#
+			AND INS_USER_ID  = #USER_ID#
+			AND ROW_NO       = #ROW_NO#
+		ORDER BY
+				SNO
+	</select>
+
+
+	<select id="selectMultiLibraryLinkForRegist" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* register.selectMultiLibraryLinkForRegist */
+	]]>
+		SELECT
+				REGIST_DATE
+			,	ROW_NO
+			,	SNO
+			,	LINK_ADDRESS
+		FROM
+				KLB_MULTI_REGIST_LINK
+		WHERE
+				REGIST_DATE  = #REGIST_DATE#
+			AND INS_USER_ID  = #USER_ID#
+			AND ROW_NO       = #ROW_NO#
+		ORDER BY
+				SNO
+	</select>
+
+
+	<update id="updateMultiLibraryInsertResult" parameterClass="java.util.Map">
+	<![CDATA[
+		/* register.updateMultiLibraryInsertResult */
+	]]>
+		UPDATE
+				KLB_MULTI_REGIST
+		SET
+				LIBRARY_ID 		= #LIBRARY_ID#
+		WHERE
+				REGIST_DATE		= #REGIST_DATE#
+			AND INS_USER_ID		= #USER_ID#
+			AND ROW_NO			= #ROW_NO#
+	</update>
+
+</sqlMap>

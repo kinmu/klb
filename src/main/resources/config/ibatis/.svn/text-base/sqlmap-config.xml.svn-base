@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+<sqlMapConfig>
+
+	<settings cacheModelsEnabled="true" useStatementNamespaces="true"/>
+
+	<sqlMap resource="config/sqlmap/common/common.xml"/>
+	<sqlMap resource="config/sqlmap/common/batch.xml"/>
+	<sqlMap resource="config/sqlmap/common/attachFile.xml"/>
+	<sqlMap resource="config/sqlmap/common/code.xml"/>
+	<sqlMap resource="config/sqlmap/common/auth.xml"/>
+
+	<sqlMap resource="config/sqlmap/portal/userDetails.xml"/>
+	<sqlMap resource="config/sqlmap/portal/menu.xml"/>
+	<sqlMap resource="config/sqlmap/portal/loginLog.xml"/>
+
+	<sqlMap resource="config/sqlmap/klb/main_sql.xml"/>
+	<sqlMap resource="config/sqlmap/klb/klb_common_sql.xml"/>
+	<sqlMap resource="config/sqlmap/klb/category_sql.xml"/>
+	<sqlMap resource="config/sqlmap/klb/register_sql.xml"/>
+	<sqlMap resource="config/sqlmap/klb/managerInfo_sql.xml"/>
+	<sqlMap resource="config/sqlmap/klb/library_sql.xml"/>
+	<sqlMap resource="config/sqlmap/klb/analyze_sql.xml"/>
+
+</sqlMapConfig>

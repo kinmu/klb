@@ -1,0 +1,31 @@
+<%@ page language="java" contentType="text/css; charset=UTF-8" pageEncoding="UTF-8"%>
+@charset "UTF-8";
+
+.variable_box_head p.more a {
+	padding:5px 8px;
+	font-size:10px;
+	color: #fff;
+	text-decoration:none;
+	text-align: center;
+	white-space: nowrap;
+	border: solid 1px #b3b4b4;
+	cursor: pointer;
+	background: none;
+	background-color: #787a7a;
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#b3b4b4', endColorstr='#787a7a');
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#b3b4b4', endColorstr='#787a7a')";
+	color: #fff;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	-ms-border-radius: 5px;
+	-o-border-radius: 5px;
+	border-radius: 5px;
+	behavior: url(../css/PIE.htc); /* IE */
+}
+.variable_box_head p.more a:hover  {
+	background: none;
+	background-color: #8b8d8d;
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#bfc0c0', endColorstr='#8b8d8d');
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#bfc0c0', endColorstr='#8b8d8d')";
+	behavior: url(../css/PIE.htc); /* IE */
+}

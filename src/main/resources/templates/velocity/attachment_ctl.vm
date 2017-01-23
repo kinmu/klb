@@ -1,0 +1,135 @@
+<script language="JavaScript">
+	function attachment_default_addFilePop(paperId) {
+	   window.open("${contextPath}/attachment/add_file.jsp", "addfile", "width=330,height=250,scrollbars=no");
+	}
+	
+	function attachment_default_delFileList() {
+		var fileListSelect = document.getElementById('fileList');
+	   try {
+	      var idx = fileListSelect.options.selectedIndex;
+	      alert(idx);
+	      if(idx == 0) {
+	         alert("삭제하실 파일을 선택해 주세요.")
+	         return;
+	      }
+	      var objvalue = fileListSelect.options[idx].value;
+	      var objText = fileListSelect.options[idx].text;
+	      var fileType = objvalue.substring(objvalue.lastIndexOf("@|@") + 3);
+	      alert('fileType ' + fileType);
+	      if(fileType == '${TEMP_UPLOADED}') {
+	         // now just remove the temporarily upload file,(to-be, remove the server-side uploaded temp file)
+	      	 var selectedOption = fileListSelect.options[idx];
+	      	 fileListSelect.removeChild(selectedOption);
+	         //TEMP FILES	         
+	         //fileListSelect.options[idx].value = objvalue.substring(0, objvalue.lastIndexOf("@|@")) + "@|@${TEMP_DELETED}";
+	         //TEMPARAY DELETE FLAG
+	         //fileListSelect.options[idx].text = objText + "(삭제)";
+	      }
+	      else if(fileType == '${PERM_UPLOADED}') {
+	         //DELETE FLAG
+	         fileListSelect.options[idx].value = objvalue.substring(0, objvalue.lastIndexOf("@|@")) + "@|@${PERM_DELETED}";
+	         //PRERMANENT DELETE FLAG
+	         fileListSelect.options[idx].text = objText + "(삭제)";
+	         //delFileConfirm(idx);
+	      }
+	      else if(fileType == '${PERM_DELETED}') {
+	         alert('삭제 선택한 파일을 또 삭제하실 수 없습니다!  삭제 취소를 원하시면 삭제 취소 버튼을 눌러주세요!');
+	      }
+	   }
+	   catch(e) {
+	      alert("삭제하실 파일을 선택해 주세요.")
+	   }
+	}
+	
+	function attachment_default_cancelDelFileList() {
+		var fileListSelect = document.getElementById('fileList');
+	   try
+	   {
+	      var idx = fileListSelect.options.selectedIndex;
+	      if(idx == 0) {
+	         alert("삭제 취소하실 파일을 선택해 주세요.")
+	         return;
+	      }
+	      var objvalue = fileListSelect.options[idx].value;
+	      var objText = fileListSelect.options[idx].text;
+	      var fileType = objvalue.substring(objvalue.lastIndexOf("@|@") + 3);
+
+	      if(fileType == '${TEMP_UPLOADED}') {
+	         //TEMP FLAG
+	         alert('취소 대상 파일이 아닙니다.!');
+	      }
+	      else if(fileType == '${PERM_UPLOADED}') {
+	         //PERM FLAG
+	         alert('취소 대상 파일이 아닙니다!');
+	      }
+	      else if(fileType == '${PERM_DELETED}') {
+	         //DELETE FLAG
+	         fileListSelect.options[idx].value = objvalue.substring(0, objvalue.lastIndexOf("@|@")) + "@|@${PERM_UPLOADED}";
+	         //PERMANENT FILE FLAG
+	         alert(objText);
+	         alert(objText.substring(0, objText.lastIndexOf("(삭제)")));
+	         
+	         fileListSelect.options[idx].text = objText.substring(0, objText.lastIndexOf("(삭제)"));
+	      }
+	   }
+	   catch(e) {
+	      alert('삭제 취소하실 파일을 선택해 주세요!')
+	   }
+	}
+		
+	
+	function setValueFile(fileName, savedFileName, filePath) {
+	   addFileList(fileName, filePath + "@|@" + savedFileName + "@|@" + fileName + "@|@${TEMP_UPLOADED}");
+	}
+	
+	function addFileList(text, value) {
+	   var obj = document.getElementById('fileList');
+	   obj[obj.length] = new Option(text, value);
+	}
+	
+	function delFileConfirm(idx) {
+	   var obj = document.getElementById('fileList');
+	   obj.options[idx] = null;
+	}	
+	
+	function formCheck() {
+		alert('formCheck() is called.');
+	   selectAllFileList();
+	}
+	
+	function selectAllFileList() {
+	   var fileListSelect = document.getElementById('fileList');
+	   var fileListSelectLength = fileListSelect.length;
+	   alert('fileListSelectLength : ' + fileListSelectLength);
+	   try
+	   {
+	      for(i = 1; i < fileListSelectLength; i++) {
+	         fileListSelect[i].selected = true;
+	      }
+	   }
+	   catch(e) {
+	   }
+	}
+	
+</script>
+
+<a href="javascript:attachment_default_addFilePop('');"><img src="${contextPath}/images/btn_addfile.gif" align=absmiddle border="0"></a>
+
+<table width="570" cellpadding="0" cellspacing="0" border="0">
+	<tr>
+		<td width=440>
+			<SELECT multiple size=5 name="files" id="fileList"> 
+              <OPTION value="">-----------------------------첨부된 파일들----------------------------</OPTION> 
+              #foreach ($file in $files)
+              	<OPTION value="${file.relativeDir}@|@${file.savedFileName}@|@${file.fileName}@|@${PERM_UPLOADED}">${file.fileName}</OPTION> 
+              #end
+			</SELECT>
+		</td>
+		<td width=130 style="padding:0 0 0 5">
+			<a href="javascript:attachment_default_delFileList();"><img src="${contextPath}/images/btn_del01.gif" align="absmiddle" vspace="1" border="0"></a><br>
+			<a href="javascript:attachment_default_cancelDelFileList();">cancel</a><br>
+			<img width=0 height=4><br>
+			
+		</td>
+	</tr>
+</table>

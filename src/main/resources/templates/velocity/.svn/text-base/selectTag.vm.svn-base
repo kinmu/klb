@@ -1,0 +1,12 @@
+<select name="$name">
+$bodyContent
+#foreach ($option in $items)
+		<option value="${option.get($itemValue)}"
+			#if( $selectedValue == ${option.get($itemValue)} )
+				selected="selected"
+			#end
+			>
+			${option.get($itemLabel)}
+		</option>
+#end
+</select>

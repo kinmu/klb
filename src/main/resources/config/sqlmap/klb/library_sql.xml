@@ -1,0 +1,823 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="library">
+
+	<sql id="library.selectNewLibraryListSql" >
+	<![CDATA[
+		/* library.selectNewLibraryListSql, */
+	]]>
+
+         SELECT
+            LI.LIBRARY_ID,
+            (SELECT KLB_GET_CODE_NAME('0018', GRADE_FROM) FROM DUAL) GRADE_FROM,
+            (SELECT KLB_GET_CODE_NAME('0018', GRADE_TO) FROM DUAL) GRADE_TO,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_TAG (LI.LIBRARY_ID), 27) AS TAG_PC,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_TAG (LI.LIBRARY_ID), 14) AS TAG_TABLET,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_CATEGORY(LI.LIBRARY_ID, '1'), 27) AS CATEGORY_PC,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_CATEGORY(LI.LIBRARY_ID, '1'), 14) AS CATEGORY_TABLET,
+            TO_CHAR(TO_DATE(LI.OPEN_TERM_FROM,'YYYY/MM/DD'),'YYYY/MM/DD') AS OPEN_TERM_FROM,
+            LR.READ_TIMES,
+            LR.DOWNLOAD_TIMES,
+            KLB_GET_SUBSTR(LI.TITLE, 33)  AS TITLE_PC,
+			KLB_GET_SUBSTR(LI.TITLE, 22)  AS TITLE_TABLET,
+            FILE_PATH,
+            THUMBNAIL
+        FROM
+        	KLB_LIBRARY_INFO LI,
+        	KLB_LIBRARY_READ LR
+        	<isNotEmpty property="CATEGORY_ID">
+				,(	SELECT
+						LIBRARY_ID
+					FROM
+						KLB_LIBRARY_CATEGORY
+					WHERE
+						CATEGORY_ID = #CATEGORY_ID#
+				) A
+			</isNotEmpty>
+		WHERE
+			LI.LIBRARY_ID = LR.LIBRARY_ID
+			<isNotEmpty property="CATEGORY_ID">
+			AND LI.LIBRARY_ID = A.LIBRARY_ID
+			</isNotEmpty>
+			AND LI.CLOSE_FLG = '0'
+			AND LI.DEL_FLG = '0'
+			<isNotEmpty property="GRADE_CODE_FROM">
+			AND <![CDATA[LI.GRADE_TO >= #GRADE_CODE_FROM# ]]>
+			</isNotEmpty>
+			<isNotEmpty property="GRADE_CODE_TO">
+			AND <![CDATA[LI.GRADE_FROM <= #GRADE_CODE_TO# ]]>
+			</isNotEmpty>
+			AND LI.OPEN_TERM_FROM BETWEEN TO_CHAR(ADD_MONTHS(SYSTIMESTAMP, -1), 'YYYYMMDD') AND TO_CHAR(SYSTIMESTAMP, 'YYYYMMDD')
+	        AND TO_CHAR(SYSTIMESTAMP,'YYYYMMDD') BETWEEN LI.OPEN_TERM_FROM AND LI.OPEN_TERM_TO
+	     ORDER BY
+	     	LI.OPEN_TERM_FROM DESC,
+	     	LI.UPD_DATE DESC
+	</sql>
+
+	<select id="selectNewLibraryList" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* library.selectNewLibraryList */
+	]]>
+		<include refid="common.beforePaginatedList"/>
+		<include refid="library.selectNewLibraryListSql"/>
+		<include refid="common.afterPaginatedList"/>
+	</select>
+
+	<select id="selectNewLibraryListCount" parameterClass="java.util.Map" resultClass="Integer">
+	<![CDATA[
+		/* library.selectNewLibraryListCount */
+	]]>
+		<include refid="common.beforeCountPaginatedList"/>
+		<include refid="library.selectNewLibraryListSql"/>
+		<include refid="common.afterCountPaginatedList"/>
+	</select>
+
+	<sql id="selectDownloadLibraryListSql" >
+	<![CDATA[
+		/* library.selectDownloadLibraryList, */
+	]]>
+
+        SELECT
+           	B.LIBRARY_ID,
+           	(SELECT KLB_GET_CODE_NAME('0018', GRADE_FROM) FROM DUAL) GRADE_FROM,
+           	(SELECT KLB_GET_CODE_NAME('0018', GRADE_TO) FROM DUAL) GRADE_TO,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_TAG (B.LIBRARY_ID), 27) AS TAG_PC,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_TAG (B.LIBRARY_ID), 14) AS TAG_TABLET,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_CATEGORY(B.LIBRARY_ID, '1'), 27) AS CATEGORY_PC,
+ 			KLB_GET_SUBSTR(KLB_GET_UNION_CATEGORY(B.LIBRARY_ID, '1'), 14) AS CATEGORY_TABLET,
+           	TO_CHAR(TO_DATE(OPEN_TERM_FROM,'YYYY/MM/DD'),'YYYY/MM/DD') AS OPEN_TERM_FROM,
+           	READ_TIMES,
+           	DOWNLOAD_TIMES,
+            KLB_GET_SUBSTR(A.TITLE, 33)  AS TITLE_PC,
+			KLB_GET_SUBSTR(A.TITLE, 22)  AS TITLE_TABLET,
+           	FILE_PATH,
+           	THUMBNAIL
+        FROM KLB_LIBRARY_INFO A,
+			(
+				SELECT
+				    LIBRARY_ID
+				  , SUM(READ_TIMES) AS READ_TIMES
+				  , SUM(DOWNLOAD_TIMES) AS DOWNLOAD_TIMES
+				FROM (
+					SELECT
+					  LIBRARY_ID
+					  , COUNT(LIBRARY_ID) AS READ_TIMES
+					  , COUNT(DOWNLOAD_FLAG) AS DOWNLOAD_TIMES
+					FROM KLB_USED_HISTORY
+					WHERE
+						<isEmpty property="PERIOD_CODE">
+						READ_DATE BETWEEN TO_CHAR(ADD_MONTHS(SYSTIMESTAMP, -1), 'YYYYMMDD') AND TO_CHAR(SYSTIMESTAMP, 'YYYYMMDD')
+						</isEmpty>
+						<isNotEmpty>
+						 	<isEqual property="PERIOD_CODE" compareValue="01">
+							READ_DATE BETWEEN TO_CHAR(SYSDATE - 7, 'YYYYMMDD') AND TO_CHAR(SYSTIMESTAMP, 'YYYYMMDD')
+							</isEqual>
+							<isEqual property="PERIOD_CODE" compareValue="02">
+							READ_DATE BETWEEN TO_CHAR(ADD_MONTHS(SYSTIMESTAMP, -1), 'YYYYMMDD') AND TO_CHAR(SYSTIMESTAMP, 'YYYYMMDD')
+							</isEqual>
+							<isEqual property="PERIOD_CODE" compareValue="03">
+							READ_DATE BETWEEN TO_CHAR(ADD_MONTHS(SYSTIMESTAMP, -6), 'YYYYMMDD') AND TO_CHAR(SYSTIMESTAMP, 'YYYYMMDD')
+							</isEqual>
+							<isEqual property="PERIOD_CODE" compareValue="04">
+							READ_DATE BETWEEN TO_CHAR(ADD_MONTHS(SYSTIMESTAMP, -12), 'YYYYMMDD') AND TO_CHAR(SYSTIMESTAMP, 'YYYYMMDD')
+							</isEqual>
+						</isNotEmpty>
+					GROUP BY LIBRARY_ID, DOWNLOAD_FLAG
+				)
+				GROUP BY LIBRARY_ID
+			) B
+			<isNotEmpty property="CATEGORY_ID">
+			,(	SELECT
+					LIBRARY_ID
+				FROM
+					KLB_LIBRARY_CATEGORY
+				WHERE
+					CATEGORY_ID = #CATEGORY_ID#
+			) C
+			</isNotEmpty>
+         WHERE
+         	B.LIBRARY_ID = A.LIBRARY_ID
+         	AND B.DOWNLOAD_TIMES > 0
+         	AND TO_CHAR(SYSTIMESTAMP,'YYYYMMDD') BETWEEN A.OPEN_TERM_FROM AND A.OPEN_TERM_TO
+        	AND A.CLOSE_FLG = '0'
+			AND A.DEL_FLG = '0'
+			<isNotEmpty property="GRADE_CODE_FROM">
+			AND <![CDATA[A.GRADE_TO >= #GRADE_CODE_FROM# ]]>
+			</isNotEmpty>
+			<isNotEmpty property="GRADE_CODE_TO">
+			AND <![CDATA[A.GRADE_FROM <= #GRADE_CODE_TO# ]]>
+			</isNotEmpty>
+         	<isNotEmpty property="CATEGORY_ID">
+			AND B.LIBRARY_ID = C.LIBRARY_ID
+			</isNotEmpty>
+		ORDER BY
+			DOWNLOAD_TIMES DESC, OPEN_TERM_FROM DESC
+
+	</sql>
+
+	<select id="selectDownloadLibraryList" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* library.selectDownloadLibraryList */
+	]]>
+		<include refid="common.beforePaginatedList"/>
+		<include refid="library.selectDownloadLibraryListSql"/>
+		<include refid="common.afterPaginatedList"/>
+	</select>
+
+	<select id="selectDownloadLibraryListCount" parameterClass="java.util.Map" resultClass="Integer">
+	<![CDATA[
+		/* library.selectDownloadLibraryList */
+	]]>
+		<include refid="common.beforeCountPaginatedList"/>
+		<include refid="library.selectDownloadLibraryListSql"/>
+		<include refid="common.afterCountPaginatedList"/>
+	</select>
+
+	<sql id="selectPickupLibraryListSql" >
+	<![CDATA[
+		/* library.selectPickupLibraryListSql, */
+	]]>
+
+         SELECT
+            B.LIBRARY_ID,
+            (SELECT KLB_GET_CODE_NAME('0018', GRADE_FROM) FROM DUAL) GRADE_FROM,
+            (SELECT KLB_GET_CODE_NAME('0018', GRADE_TO) FROM DUAL) GRADE_TO,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_TAG (B.LIBRARY_ID), 27) AS TAG_PC,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_TAG (B.LIBRARY_ID), 14) AS TAG_TABLET,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_CATEGORY(B.LIBRARY_ID, '1'), 27) AS CATEGORY_PC,
+ 			KLB_GET_SUBSTR(KLB_GET_UNION_CATEGORY(B.LIBRARY_ID, '1'), 14) AS CATEGORY_TABLET,
+            TO_CHAR(TO_DATE(OPEN_TERM_FROM,'YYYY/MM/DD'),'YYYY/MM/DD') AS OPEN_TERM_FROM,
+            READ_TIMES,
+            DOWNLOAD_TIMES,
+            KLB_GET_SUBSTR(B.TITLE, 33)  AS TITLE_PC,
+			KLB_GET_SUBSTR(B.TITLE, 22)  AS TITLE_TABLET,
+            FILE_PATH,
+            THUMBNAIL
+         FROM KLB_LIBRARY_INFO A,
+              (
+              	SELECT
+					LI.LIBRARY_ID ,
+					LI.TITLE ,
+                 	LR.READ_TIMES ,
+                  	LR.DOWNLOAD_TIMES
+				FROM
+					KLB_LIBRARY_INFO LI, KLB_LIBRARY_READ LR
+				WHERE
+			        LI.LIBRARY_ID = LR.LIBRARY_ID
+			        AND LI.CLOSE_FLG = '0'
+					AND LI.DEL_FLG = '0'
+					<isNotEmpty property="GRADE_CODE_FROM">
+					AND <![CDATA[LI.GRADE_TO >= #GRADE_CODE_FROM# ]]>
+					</isNotEmpty>
+					<isNotEmpty property="GRADE_CODE_TO">
+					AND <![CDATA[LI.GRADE_FROM <= #GRADE_CODE_TO# ]]>
+					</isNotEmpty>
+					<isEqual property="PICKUP_TERM" compareValue="BEFORE_YEAR">
+					AND LI.OPEN_TERM_FROM BETWEEN TO_CHAR(ADD_MONTHS(SYSTIMESTAMP, -13), 'YYYYMMDD') AND TO_CHAR(ADD_MONTHS(SYSTIMESTAMP, -11), 'YYYYMMDD')
+					</isEqual>
+					<isEqual property="PICKUP_TERM" compareValue="BEFORE_2MONTH">
+					AND LI.OPEN_TERM_FROM BETWEEN TO_CHAR(ADD_MONTHS(SYSTIMESTAMP, -2), 'YYYYMMDD') AND TO_CHAR(SYSTIMESTAMP, 'YYYYMMDD')
+					</isEqual>
+			        AND TO_CHAR(SYSTIMESTAMP,'YYYYMMDD') BETWEEN LI.OPEN_TERM_FROM AND LI.OPEN_TERM_TO
+
+				) B
+        WHERE
+        	B.LIBRARY_ID = A.LIBRARY_ID(+)
+		ORDER BY
+			DOWNLOAD_TIMES DESC,  OPEN_TERM_FROM DESC
+	</sql>
+
+	<select id="selectPickupLibraryList" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* library.selectPickupLibraryList */
+	]]>
+		<include refid="common.beforePaginatedList"/>
+		<include refid="library.selectPickupLibraryListSql"/>
+		<include refid="common.afterPaginatedList"/>
+	</select>
+
+	<select id="selectPickupLibraryListCount" parameterClass="java.util.Map" resultClass="Integer">
+	<![CDATA[
+		/* library.selectPickupLibraryListCount */
+	]]>
+		<include refid="common.beforeCountPaginatedList"/>
+		<include refid="library.selectPickupLibraryListSql"/>
+		<include refid="common.afterCountPaginatedList"/>
+	</select>
+
+	<sql id="selectHistoryLibraryListSql">
+	<![CDATA[
+		/* library.selectHistoryLibraryListSql, */
+	]]>
+
+		SELECT
+		    LI.LIBRARY_ID,
+		    (SELECT KLB_GET_CODE_NAME('0018', GRADE_FROM) FROM DUAL) GRADE_FROM,
+		    (SELECT KLB_GET_CODE_NAME('0018', GRADE_TO) FROM DUAL) GRADE_TO,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_TAG (LI.LIBRARY_ID), 27) AS TAG_PC,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_TAG (LI.LIBRARY_ID), 14) AS TAG_TABLET,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_CATEGORY(LI.LIBRARY_ID, '1'), 27) AS CATEGORY_PC,
+ 			KLB_GET_SUBSTR(KLB_GET_UNION_CATEGORY(LI.LIBRARY_ID, '1'), 14) AS CATEGORY_TABLET,
+		   	TO_CHAR(TO_DATE(LI.OPEN_TERM_FROM,'YYYY/MM/DD'),'YYYY/MM/DD') AS OPEN_TERM_FROM ,
+		    TO_CHAR(TO_DATE(LI.OPEN_TERM_TO,'YYYY/MM/DD'),'YYYY/MM/DD') AS OPEN_TERM_TO,
+		    TO_CHAR(SYSDATE,'YYYYMMDD') NOW_DATE,
+		    CASE
+		      WHEN TO_CHAR(SYSDATE,'YYYYMMDD') BETWEEN LI.OPEN_TERM_FROM AND LI.OPEN_TERM_TO
+		      THEN '1'
+		      ELSE '0'
+		    END OPEN_TERM_FLG,
+		    LR.READ_TIMES,
+		    LR.DOWNLOAD_TIMES,
+            KLB_GET_SUBSTR(LI.TITLE, 33)  AS TITLE_PC,
+			KLB_GET_SUBSTR(LI.TITLE, 22)  AS TITLE_TABLET,
+		    LI.FILE_PATH,
+		    LI.THUMBNAIL,
+		    LI.DEL_FLG,
+		    LI.CLOSE_FLG,
+		    TO_CHAR(TO_DATE(UH.READ_DATE,'YYYY/MM/DD'),'YYYY/MM/DD') || ' ' ||
+		    NVL(SUBSTR(READ_TIME,0,2),'00') || ':' || NVL(SUBSTR(READ_TIME,3,2), '00') AS READ_TIME
+		FROM KLB_LIBRARY_INFO LI,
+		     KLB_USED_HISTORY UH,
+		     KLB_LIBRARY_READ LR,
+			(SELECT
+			 DISTINCT B.LIBRARY_ID
+			 ,B.LOGIN_ID
+			 ,MAX(B.READ_DATE) READ_DATE
+			FROM KLB_USED_HISTORY B,
+				(SELECT
+				    LOGIN_ID, LIBRARY_ID
+				FROM
+					KLB_USED_HISTORY
+				WHERE
+					LOGIN_ID = #LOGIN_ID#
+					<isEqual property="PERIOD_CODE" compareValue="01">
+					AND READ_DATE BETWEEN TO_CHAR(SYSDATE - 7, 'YYYYMMDD') AND TO_CHAR(SYSTIMESTAMP, 'YYYYMMDD')
+					</isEqual>
+					<isEqual property="PERIOD_CODE" compareValue="02">
+					AND READ_DATE BETWEEN TO_CHAR(ADD_MONTHS(SYSTIMESTAMP, -1), 'YYYYMMDD') AND TO_CHAR(SYSTIMESTAMP, 'YYYYMMDD')
+					</isEqual>
+					<isEqual property="PERIOD_CODE" compareValue="03">
+					AND READ_DATE BETWEEN TO_CHAR(ADD_MONTHS(SYSTIMESTAMP, -6), 'YYYYMMDD') AND TO_CHAR(SYSTIMESTAMP, 'YYYYMMDD')
+					</isEqual>
+					<isEqual property="PERIOD_CODE" compareValue="04">
+					AND READ_DATE BETWEEN TO_CHAR(ADD_MONTHS(SYSTIMESTAMP, -12), 'YYYYMMDD') AND TO_CHAR(SYSTIMESTAMP, 'YYYYMMDD')
+					</isEqual>
+				GROUP BY LOGIN_ID, LIBRARY_ID
+		        ) A
+		    WHERE
+		         B.LOGIN_ID = A.LOGIN_ID
+		         AND B.LIBRARY_ID = A.LIBRARY_ID
+		    GROUP BY B.LOGIN_ID, B.LIBRARY_ID
+		    ) C
+		WHERE
+		    C.LIBRARY_ID = LI.LIBRARY_ID(+)
+		    AND C.LIBRARY_ID = UH.LIBRARY_ID(+)
+		    AND C.LIBRARY_ID = LR.LIBRARY_ID(+)
+		    AND LI.LIBRARY_ID = UH.LIBRARY_ID
+		    AND C.LOGIN_ID = UH.LOGIN_ID
+		    AND C.READ_DATE = UH.READ_DATE
+		    <isNotEmpty property="CATEGORY_ID">
+			AND EXISTS (
+						SELECT  1
+						  FROM  KLB_LIBRARY_CATEGORY
+						 WHERE  LIBRARY_ID = C.LIBRARY_ID
+						   AND  CATEGORY_ID = #CATEGORY_ID#	)
+    		</isNotEmpty>
+		ORDER BY READ_TIME DESC
+	</sql>
+
+	<select id="selectHistoryLibraryList" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* library.selectHistoryLibraryList */
+	]]>
+		<include refid="common.beforePaginatedList"/>
+		<include refid="library.selectHistoryLibraryListSql"/>
+		<include refid="common.afterPaginatedList"/>
+	</select>
+
+	<select id="selectHistoryLibraryListCount" parameterClass="java.util.Map" resultClass="Integer">
+	<![CDATA[
+		/* library.selectHistoryLibraryListCount */
+	]]>
+		<include refid="common.beforeCountPaginatedList"/>
+		<include refid="library.selectHistoryLibraryListSql"/>
+		<include refid="common.afterCountPaginatedList"/>
+	</select>
+
+	<sql id="selectLibraryByCategoryIdSql">
+	<![CDATA[
+		/* library.selectLibraryByCategoryIdSql, */
+	]]>
+
+         SELECT
+            LI.LIBRARY_ID,
+            (SELECT KLB_GET_CODE_NAME('0018', GRADE_FROM) FROM DUAL) GRADE_FROM,
+            (SELECT KLB_GET_CODE_NAME('0018', GRADE_TO) FROM DUAL) GRADE_TO,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_TAG (LI.LIBRARY_ID), 27) AS TAG_PC,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_TAG (LI.LIBRARY_ID), 14) AS TAG_TABLET,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_CATEGORY(LI.LIBRARY_ID, '1'), 27) AS CATEGORY_PC,
+ 			KLB_GET_SUBSTR(KLB_GET_UNION_CATEGORY(LI.LIBRARY_ID, '1'), 14) AS CATEGORY_TABLET,
+            TO_CHAR(TO_DATE(OPEN_TERM_FROM,'YYYY/MM/DD'),'YYYY/MM/DD') AS OPEN_TERM_FROM ,
+            LR.READ_TIMES,
+            LR.DOWNLOAD_TIMES,
+            KLB_GET_SUBSTR(LI.TITLE, 33)  AS TITLE_PC,
+			KLB_GET_SUBSTR(LI.TITLE, 22)  AS TITLE_TABLET,
+            FILE_PATH,
+            THUMBNAIL
+        FROM KLB_LIBRARY_INFO LI, KLB_LIBRARY_READ LR
+        	,(
+        	SELECT
+        		LIBRARY_ID, CATEGORY_ID
+        	FROM
+        		KLB_LIBRARY_CATEGORY
+        	WHERE
+        		CATEGORY_ID = #SELECT_CATEGORY_ID#
+        	) A
+		WHERE
+			A.LIBRARY_ID = LI.LIBRARY_ID
+			AND LI.LIBRARY_ID = LR.LIBRARY_ID
+			AND LI.CLOSE_FLG = '0'
+			AND LI.DEL_FLG = '0'
+	        AND TO_CHAR(SYSTIMESTAMP,'YYYYMMDD') BETWEEN LI.OPEN_TERM_FROM AND LI.OPEN_TERM_TO
+	     ORDER BY
+	     	<isEqual property="SORT_CODE" compareValue="06">
+	     	LR.READ_TIMES DESC ,
+	     	</isEqual>
+	     	<isEqual property="SORT_CODE" compareValue="08">
+	     	LR.DOWNLOAD_TIMES DESC ,
+	     	</isEqual>
+	     	LI.OPEN_TERM_FROM DESC,
+	     	LI.UPD_DATE DESC
+	</sql>
+
+	<select id="selectLibraryListByCategoryId" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* library.selectLibraryListByCategoryId */
+	]]>
+		<include refid="common.beforePaginatedList"/>
+		<include refid="library.selectLibraryByCategoryIdSql"/>
+		<include refid="common.afterPaginatedList"/>
+	</select>
+
+	<select id="selectLibraryListByCategoryIdCount" parameterClass="java.util.Map" resultClass="Integer">
+	<![CDATA[
+		/* library.selectLibraryListByCategoryIdCount */
+	]]>
+		<include refid="common.beforeCountPaginatedList"/>
+		<include refid="library.selectLibraryByCategoryIdSql"/>
+		<include refid="common.afterCountPaginatedList"/>
+	</select>
+
+
+	<sql id="selectSearchKeywordAndCategorySql">
+	<![CDATA[
+		/* library.selectSearchKeywordAndCategorySql, */
+	]]>
+
+         SELECT
+            LI.LIBRARY_ID,
+            (SELECT KLB_GET_CODE_NAME('0018', GRADE_FROM) FROM DUAL) GRADE_FROM,
+            (SELECT KLB_GET_CODE_NAME('0018', GRADE_TO) FROM DUAL) GRADE_TO,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_TAG (LI.LIBRARY_ID), 27) AS TAG_PC,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_TAG (LI.LIBRARY_ID), 14) AS TAG_TABLET,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_CATEGORY(LI.LIBRARY_ID, '1'), 27) AS CATEGORY_PC,
+ 			KLB_GET_SUBSTR(KLB_GET_UNION_CATEGORY(LI.LIBRARY_ID, '1'), 14) AS CATEGORY_TABLET,
+            TO_CHAR(TO_DATE(OPEN_TERM_FROM,'YYYY/MM/DD'),'YYYY/MM/DD') AS OPEN_TERM_FROM ,
+            LR.READ_TIMES,
+            LR.DOWNLOAD_TIMES,
+            KLB_GET_SUBSTR(LI.TITLE, 33)  AS TITLE_PC,
+			KLB_GET_SUBSTR(LI.TITLE, 22)  AS TITLE_TABLET,
+            FILE_PATH,
+            THUMBNAIL
+		FROM
+			<isNotEmpty property="KEYWORD_LIST">
+			(
+			SELECT
+				LIBRARY_ID
+			FROM
+
+		        (
+		        SELECT
+		        	LIBRARY_ID
+		        FROM
+		        	KLB_LIBRARY_INFO
+				WHERE
+					1 = 1
+			        AND ((
+				        <iterate property="KEYWORD_LIST" prepend="" open="" close="" conjunction=" OR " >
+			    			 TITLE LIKE '%'||#KEYWORD_LIST[]#||'%'
+			    		</iterate>
+			    		) OR (
+			    		<iterate property="KEYWORD_LIST" prepend="" open="" close="" conjunction=" OR " >
+			    			 LIBRARY_ID LIKE '%'||#KEYWORD_LIST[]#
+			    		</iterate>
+			    		)
+			    		<isNotEmpty property="CONTENT_INTRO">
+			    		OR (
+			    			<iterate property="KEYWORD_LIST" prepend="" open="" close="" conjunction=" OR " >
+			    			 CONTENT_INTRO LIKE '%'||#KEYWORD_LIST[]#||'%'
+			    			</iterate>
+			    		)
+			    		</isNotEmpty>
+			    	)
+		    	GROUP BY
+		    		LIBRARY_ID
+		    	UNION ALL
+		    	SELECT
+		        	LIBRARY_ID
+		        FROM
+		        	KLB_LIBRARY_TAG
+				WHERE
+					1 = 1 AND (
+			        <iterate property="KEYWORD_LIST" prepend="" open="" close="" conjunction=" OR " >
+		    		TAG = #KEYWORD_LIST[]#
+		    		</iterate>
+		    		)
+				) A
+			GROUP BY A.LIBRARY_ID
+			) B,
+			</isNotEmpty>
+			KLB_LIBRARY_INFO LI,
+			KLB_LIBRARY_READ LR
+		WHERE
+			LI.CLOSE_FLG = '0'
+			AND LI.DEL_FLG = '0'
+	        AND TO_CHAR(SYSTIMESTAMP,'YYYYMMDD') BETWEEN LI.OPEN_TERM_FROM AND LI.OPEN_TERM_TO
+	        <isNotEmpty property="KEYWORD_LIST">
+			AND B.LIBRARY_ID = LI.LIBRARY_ID
+			</isNotEmpty>
+	        AND LI.LIBRARY_ID = LR.LIBRARY_ID
+			<isNotEmpty property="SEARCH_CATEGORY">
+			AND EXISTS (
+						SELECT  1
+						  FROM  KLB_LIBRARY_CATEGORY
+						 WHERE  LIBRARY_ID = LI.LIBRARY_ID
+						   AND  CATEGORY_ID = #SEARCH_CATEGORY#	)
+    		</isNotEmpty>
+	    ORDER BY
+     		<isEqual property="SORT_CODE" compareValue="06">
+     		LR.READ_TIMES DESC ,
+     		</isEqual>
+     		<isEqual property="SORT_CODE" compareValue="08">
+     		LR.DOWNLOAD_TIMES DESC ,
+     		</isEqual>
+     		LI.OPEN_TERM_FROM DESC,
+     		LI.UPD_DATE DESC
+	</sql>
+
+	<select id="selectSearchKeywordAndCategory" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* library.selectSearchKeywordAndCategory */
+	]]>
+		<include refid="common.beforePaginatedList"/>
+		<include refid="library.selectSearchKeywordAndCategorySql"/>
+		<include refid="common.afterPaginatedList"/>
+	</select>
+
+	<select id="selectSearchKeywordAndCategoryCount" parameterClass="java.util.Map" resultClass="Integer">
+	<![CDATA[
+		/* library.selectSearchKeywordAndCategoryCount */
+	]]>
+		<include refid="common.beforeCountPaginatedList"/>
+		<include refid="library.selectSearchKeywordAndCategorySql"/>
+		<include refid="common.afterCountPaginatedList"/>
+	</select>
+
+	<select id="selectLibraryByLibraryId" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* library.selectLibraryByLibraryId */
+	]]>
+		 SELECT
+            LI.LIBRARY_ID,
+            (SELECT KLB_GET_CODE_NAME('0018', GRADE_FROM) FROM DUAL) GRADE_FROM,
+            (SELECT KLB_GET_CODE_NAME('0018', GRADE_TO) FROM DUAL) GRADE_TO,
+            KLB_GET_FILE_INFO( LI.LIBRARY_ID, 1 ) AS FILE_NAME_BEFORE,
+            KLB_GET_FILE_INFO( LI.LIBRARY_ID, 2 ) AS FILE_NAME_AFTER,
+            KLB_GET_FILE_INFO( LI.LIBRARY_ID, 3 ) AS FILE_SIZE,
+            KLB_GET_FILE_INFO( LI.LIBRARY_ID, 4 ) AS LINK_ADDRESS,
+            KLB_GET_FILE_INFO( LI.LIBRARY_ID, 5 ) AS FILE_SNO,
+            KLB_GET_UNION_TAG( LI.LIBRARY_ID) AS TAG,
+            KLB_GET_UNION_CATEGORY(LI.LIBRARY_ID, '1') CATEGORY,
+            TO_CHAR(TO_DATE(OPEN_TERM_FROM,'YYYY/MM/DD'),'YYYY/MM/DD') AS OPEN_TERM_FROM ,
+            NVL(LR.READ_TIMES, 0) AS READ_TIMES,
+            NVL(LR.DOWNLOAD_TIMES, 0) AS DOWNLOAD_TIMES,
+            TITLE,
+            FILE_PATH,
+            THUMBNAIL,
+            CONTENT_INTRO,
+            CLOSE_FLG,
+            DEL_FLG,
+            CASE
+		      WHEN TO_CHAR(SYSDATE,'YYYYMMDD') BETWEEN LI.OPEN_TERM_FROM AND LI.OPEN_TERM_TO
+		      THEN '1'
+		      ELSE '0'
+		    END OPEN_TERM_FLG
+        FROM
+        	KLB_LIBRARY_INFO LI,
+        	KLB_LIBRARY_READ LR
+		WHERE
+			LI.LIBRARY_ID = #LIBRARY_ID#
+			AND LI.LIBRARY_ID = LR.LIBRARY_ID
+			<!-- /* 有効な教材かは使う画面で制御する */
+			AND LI.CLOSE_FLG = '0'
+			AND LI.DEL_FLG = '0'
+	        AND TO_CHAR(SYSTIMESTAMP,'YYYYMMDD') BETWEEN LI.OPEN_TERM_FROM AND LI.OPEN_TERM_TO
+	         -->
+	</select>
+
+
+	<update id="updateLibraryReadCount" parameterClass="java.util.Map" >
+	<![CDATA[
+		/* library.updateLibraryReadCount */
+	]]>
+
+		UPDATE
+			KLB_LIBRARY_READ
+		SET
+			READ_TIMES =
+				(
+				SELECT
+					(READ_TIMES)+1
+				FROM
+					KLB_LIBRARY_READ A
+				WHERE
+					A.LIBRARY_ID = #LIBRARY_ID#
+				)
+			, UPD_USER_ID = #LOGIN_ID#
+			, UPD_DATE = SYSTIMESTAMP
+		WHERE
+			LIBRARY_ID = #LIBRARY_ID#
+
+	</update>
+
+	<update id="updateLibraryDownloadCount" parameterClass="java.util.Map" >
+	<![CDATA[
+		/* library.updateLibraryDownloadCount */
+	]]>
+
+		UPDATE
+			KLB_LIBRARY_READ
+		SET
+			DOWNLOAD_TIMES =
+				(
+				SELECT
+					(DOWNLOAD_TIMES)+1
+				FROM
+					KLB_LIBRARY_READ A
+				WHERE
+					A.LIBRARY_ID = #LIBRARY_ID#
+				)
+			, UPD_USER_ID = #LOGIN_ID#
+			, UPD_DATE = SYSTIMESTAMP
+		WHERE
+			LIBRARY_ID = #LIBRARY_ID#
+
+	</update>
+
+	<select id="selectUsedHistoryByReadDateAndLoginId" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* library.selectUsedHistoryByReadDateAndLoginId */
+	]]>
+		SELECT
+			READ_DATE,
+			LOGIN_ID,
+			LIBRARY_ID,
+			READ_TIME,
+			USER_TYPE,
+			OFFICE_ID,
+			COMMITTEE_ID,
+			SCHOOL_ID,
+			SCHOOL_TYPE,
+			GRADE_CODE,
+			DOWNLOAD_FLAG
+		FROM
+			KLB_USED_HISTORY
+		WHERE
+			READ_DATE = TO_CHAR(SYSDATE,'YYYYMMDD')
+			AND LOGIN_ID = #LOGIN_ID#
+			AND LIBRARY_ID = #LIBRARY_ID#
+	</select>
+
+	<select id="selectFileByLibraryIdAndSno" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* library.selectFileByLibraryIdAndSno */
+	]]>
+		SELECT
+			LIBRARY_ID,
+			SNO,
+			FILE_NAME_BEF,
+			FILE_NAME_AFT,
+			FILE_SIZE
+		FROM
+			KLB_LIBRARY_FILE
+		WHERE
+			LIBRARY_ID = #LIBRARY_ID#
+			AND SNO = #FILE_SNO#
+	</select>
+
+	<insert id="insertUsedHistory" parameterClass="java.util.Map">
+	<![CDATA[
+		/* library.insertUsedHistory */
+	]]>
+		INSERT INTO
+			KLB_USED_HISTORY
+		(
+				READ_DATE
+			,	LOGIN_ID
+			,	LIBRARY_ID
+			,	READ_TIME
+			,	USER_TYPE
+			,	OFFICE_ID
+			,	COMMITTEE_ID
+			,	SCHOOL_ID
+			,	SCHOOL_TYPE
+			,	GRADE_CLASS_ID
+			,	GRADE_CODE
+			,	DOWNLOAD_FLAG
+			,	INS_USER_ID
+			,	INS_DATE
+			,	UPD_USER_ID
+			,	UPD_DATE
+		) VALUES (
+				TO_CHAR(SYSDATE,'YYYYMMDD')
+			,	#USER_ID#
+			,	#LIBRARY_ID#
+			,	TO_CHAR(SYSDATE,'HH24MISS')
+			,	#USER_TYPE#
+			,	#OFFICE_ID#
+			,	#COMMITTEE_ID#
+			,	#SCH_CD#
+			,	#SCHOOL_TYPE#
+			,	#GRADE_CLASS_ID#
+			,	#GRADE_CODE#
+			,	NULL
+			,	#LOGIN_ID#
+			,	SYSTIMESTAMP
+			,	#LOGIN_ID#
+			,	SYSTIMESTAMP
+		)
+	</insert>
+
+	<update id="updateUsedHistory" parameterClass="java.util.Map" >
+	<![CDATA[
+		/* library.updateUsedHistory */
+	]]>
+
+		UPDATE
+			KLB_USED_HISTORY
+		SET
+			READ_TIME = TO_CHAR(SYSDATE,'HH24MISS')
+			<isNotEmpty property="DOWNLOAD_FLAG">
+			, DOWNLOAD_FLAG = '1'
+			</isNotEmpty>
+			, UPD_DATE = SYSTIMESTAMP
+		WHERE
+			READ_DATE = TO_CHAR(SYSDATE,'YYYYMMDD')
+			AND LOGIN_ID = #USER_ID#
+			AND LIBRARY_ID = #LIBRARY_ID#
+
+	</update>
+
+	<sql id="selectSearchByAllConditionsSql">
+	<![CDATA[
+		/* library.selectSearchByAllConditionsSql, */
+	]]>
+
+         SELECT
+            LI.LIBRARY_ID,
+            (SELECT KLB_GET_CODE_NAME('0018', GRADE_FROM) FROM DUAL) GRADE_FROM,
+            (SELECT KLB_GET_CODE_NAME('0018', GRADE_TO) FROM DUAL) GRADE_TO,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_TAG (LI.LIBRARY_ID), 27) AS TAG_PC,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_TAG (LI.LIBRARY_ID), 14) AS TAG_TABLET,
+           	KLB_GET_SUBSTR(KLB_GET_UNION_CATEGORY(LI.LIBRARY_ID, '1'), 27) AS CATEGORY_PC,
+ 			KLB_GET_SUBSTR(KLB_GET_UNION_CATEGORY(LI.LIBRARY_ID, '1'), 14) AS CATEGORY_TABLET,
+            TO_CHAR(TO_DATE(OPEN_TERM_FROM,'YYYY/MM/DD'),'YYYY/MM/DD') AS OPEN_TERM_FROM ,
+            LR.READ_TIMES,
+            LR.DOWNLOAD_TIMES,
+            KLB_GET_SUBSTR(LI.TITLE, 33)  AS TITLE_PC,
+			KLB_GET_SUBSTR(LI.TITLE, 22)  AS TITLE_TABLET,
+            FILE_PATH,
+            THUMBNAIL
+		FROM
+			<isNotEmpty property="SEARCH_TAG_LIST">
+			(
+			SELECT
+				LIBRARY_ID
+			FROM
+		        KLB_LIBRARY_TAG
+			WHERE
+				1 = 1
+				AND (
+		        <iterate property="SEARCH_TAG_LIST" prepend="" open="" close="" conjunction=" OR " >
+	    		TAG = #SEARCH_TAG_LIST[]#
+	    		</iterate>
+		    	)
+			GROUP BY LIBRARY_ID
+			) B,
+			</isNotEmpty>
+			KLB_LIBRARY_INFO LI,
+			KLB_LIBRARY_READ LR
+		WHERE
+			LI.CLOSE_FLG = '0'
+			AND LI.DEL_FLG = '0'
+	        AND TO_CHAR(SYSTIMESTAMP,'YYYYMMDD') BETWEEN LI.OPEN_TERM_FROM AND LI.OPEN_TERM_TO
+	        <isNotEmpty property="SEARCH_TITLE">
+			AND LI.TITLE LIKE '%'||#SEARCH_TITLE#||'%'
+			</isNotEmpty>
+	        <isNotEmpty property="SEARCH_LIBRARY_ID">
+			AND LI.LIBRARY_ID LIKE '%'||#SEARCH_LIBRARY_ID#
+			</isNotEmpty>
+	        <isNotEmpty property="SEARCH_CONTENT_INTRO">
+			AND LI.CONTENT_INTRO LIKE '%'||#SEARCH_CONTENT_INTRO#||'%'
+			</isNotEmpty>
+	        <isNotEmpty property="SEARCH_TAG_LIST">
+			AND B.LIBRARY_ID = LI.LIBRARY_ID
+			</isNotEmpty>
+			<isNotEmpty property="GRADE_CODE_FROM">
+			AND <![CDATA[ LI.GRADE_TO >= #GRADE_CODE_FROM# ]]>
+			</isNotEmpty>
+			<isNotEmpty property="GRADE_CODE_TO">
+			AND <![CDATA[ LI.GRADE_FROM <= #GRADE_CODE_TO# ]]>
+			</isNotEmpty>
+	        AND LI.LIBRARY_ID = LR.LIBRARY_ID
+	        <isNotEmpty>
+	        </isNotEmpty>
+			<isNotEmpty property="SEARCH_CATEGORY">
+			AND EXISTS (
+						SELECT  1
+						  FROM  KLB_LIBRARY_CATEGORY
+						 WHERE  LIBRARY_ID = LI.LIBRARY_ID
+						   AND  CATEGORY_ID = #SEARCH_CATEGORY#	)
+    		</isNotEmpty>
+	    ORDER BY
+     		<isEqual property="SORT_CODE" compareValue="06">
+     		LR.READ_TIMES DESC ,
+     		</isEqual>
+     		<isEqual property="SORT_CODE" compareValue="08">
+     		LR.DOWNLOAD_TIMES DESC ,
+     		</isEqual>
+     		LI.OPEN_TERM_FROM DESC,
+     		LI.UPD_DATE DESC
+	</sql>
+
+	<select id="selectSearchByAllConditions" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* library.selectSearchByAllConditions */
+	]]>
+		<include refid="common.beforePaginatedList"/>
+		<include refid="library.selectSearchByAllConditionsSql"/>
+		<include refid="common.afterPaginatedList"/>
+	</select>
+
+	<select id="selectSearchByAllConditionsCount" parameterClass="java.util.Map" resultClass="Integer">
+	<![CDATA[
+		/* library.selectSearchByAllConditionsCount */
+	]]>
+		<include refid="common.beforeCountPaginatedList"/>
+		<include refid="library.selectSearchByAllConditionsSql"/>
+		<include refid="common.afterCountPaginatedList"/>
+	</select>
+
+
+</sqlMap>

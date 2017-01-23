@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="auth">
+
+	<select id="selectLectureInCharge" parameterClass="Map" resultClass="Integer">
+		SELECT
+			COUNT(*)
+		FROM
+			TKS_STAFF_LECTURE_BASE
+		WHERE
+				SCHOOL_ID = #SCH_CD#
+			AND	YEAR = #YEAR#
+			AND	STAFF_ID = #AID#
+			AND	LECTURE_CODE = #GLOBAL_LECTURE_CODE#
+			AND	GRADE_CODE = #GLOBAL_GRADE_CODE#
+	</select>
+
+	<select id="selectLectureInCharge2" parameterClass="Map" resultClass="Integer">
+		SELECT
+			COUNT(*)
+		FROM
+			TKS_STAFF_LECTURE_BASE a,
+			TKS_STAFF_TEACH b
+		WHERE
+				a.SCHOOL_ID = #SCH_CD#
+			AND	a.YEAR = #YEAR#
+			AND	a.STAFF_ID = #AID#
+			AND	a.LECTURE_CODE = #GLOBAL_LECTURE_CODE#
+			AND	a.GRADE_CODE = #GLOBAL_GRADE_CODE#
+			AND b.TEACH_ID = #GLOBAL_TEACH_ID#
+			AND a.SCHOOL_ID = b.SCHOOL_ID
+			AND a.YEAR = b.YEAR
+			AND a.STAFF_ID = b.STAFF_ID
+			AND a.LECTURE_CODE = b.LECTURE_CODE
+			AND a.GRADE_CODE = b.GRADE_CODE
+	</select>
+
+</sqlMap>

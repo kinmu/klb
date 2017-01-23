@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="analyze">
+
+	<select id="selectBasicInfo" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* analyze.selectBasicInfo */
+	]]>
+		SELECT
+				CODE   as ANALYZE_TYPE
+			,	ITEM1  as ANALYZE_TYPE_NAME
+			,	ITEM2  as TEMPLATE_FILE_NAME
+			,	ITEM3  as SQL_ID
+			,	TO_CHAR(TO_DATE(#ANALYZE_DATE_FROM#, 'YYYYMMDD'), 'YYYY-MM-DD')  as ANALYZE_DATE_FROM
+			,	TO_CHAR(TO_DATE(#ANALYZE_DATE_TO#  , 'YYYYMMDD'), 'YYYY-MM-DD')  as ANALYZE_DATE_TO
+		FROM
+				KLB_CODE_MASTER
+		WHERE
+				CODE_ID = 'K007'
+			AND DEL_FLG = '0'
+			<iterate property="ANALYZE_TYPE_LIST" prepend="AND CODE IN" open="(" close=")" conjunction="," >
+				#ANALYZE_TYPE_LIST[]#
+			</iterate>
+		ORDER BY
+				DISPLAY_ORDER
+	</select>
+
+
+	<select id="selectUseCondition" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* analyze.selectUseCondition */
+	]]>
+
+	SELECT
+		*
+	FROM
+		(
+
+		SELECT
+			a.LIBRARY_ID 																		as LIBRARY_ID
+			,	DECODE(a.USER_TYPE, 'S', 1, 2)				                                    as ORDER_NUM
+			,	DECODE(a.USER_TYPE, 'S', '学習者', '教職員')                                    as USER_TYPE
+			,	b.TITLE 																		as TITLE
+			,	KLB_GET_UNION_CATEGORY(a.LIBRARY_ID, '1')                                       as CATEGORY
+			,	KLB_GET_CODE_NAME('0018', b.GRADE_FROM)                                         as GRADE_FROM
+			,	KLB_GET_CODE_NAME('0018', b.GRADE_TO)                                           as GRADE_TO
+			,	KLB_GET_CODE_NAME('0002', a.SCHOOL_TYPE)                                        as SCHOOL_TYPE
+			/*
+			,	a.OFFICE_ID																		as OFFICE_ID
+			,	KLB_GET_CODE_NAME('0007', a.COMMITTEE_ID)                                       as COMMITTEE
+			*/
+			,	KLB_GET_SCHOOL_NAME(a.SCHOOL_ID, #ANALYZE_DATE_TO#)                             as SCHOOL_NAME
+			,	CASE
+					 WHEN a.GRADE_CODE IS NULL
+					 THEN 'その他'
+					 ELSE KLB_GET_CODE_NAME('0018', a.GRADE_CODE)
+				END                                                                             as GRADE
+			,	CASE
+					 WHEN a.GRADE_CLASS_ID IS NULL
+					 THEN 'その他'
+					 ELSE KLB_GET_CLASS_NAME(a.SCHOOL_ID, a.GRADE_CLASS_ID, #ANALYZE_CLASS_YEAR#)
+				END                                                                             as CLASS
+			,	a.READ_TIMES																	as READ_TIMES
+			,	a.DOWNLOAD_TIMES 																as DOWNLOAD_TIMES
+		FROM
+				(
+					SELECT
+							USER_TYPE
+						,	LIBRARY_ID
+						,	SCHOOL_TYPE
+						/*
+						,	OFFICE_ID
+						,	COMMITTEE_ID
+						*/
+						,	SCHOOL_ID
+						,	GRADE_CODE
+						,	GRADE_CLASS_ID
+						,	COUNT(*)              as READ_TIMES
+						,	COUNT(DOWNLOAD_FLAG)  as DOWNLOAD_TIMES
+					FROM
+							KLB_USED_HISTORY
+					WHERE
+							READ_DATE BETWEEN #ANALYZE_DATE_FROM# AND #ANALYZE_DATE_TO#
+					GROUP BY
+							USER_TYPE
+						<isEqual property="ANALYZE_TYPE_CODE" compareValue="01">
+						,	LIBRARY_ID
+						/*
+						,	OFFICE_ID
+						,	COMMITTEE_ID
+						*/
+						,	SCHOOL_TYPE
+						,	SCHOOL_ID
+						,	GRADE_CODE
+						,	GRADE_CLASS_ID
+						</isEqual>
+						<isEqual property="ANALYZE_TYPE_CODE" compareValue="02">
+						/*
+						,	OFFICE_ID
+						,	COMMITTEE_ID
+						*/
+						,	SCHOOL_TYPE
+						,	SCHOOL_ID
+						,	GRADE_CODE
+						,	GRADE_CLASS_ID
+						,	LIBRARY_ID
+						</isEqual>
+				)  a
+			,	KLB_LIBRARY_INFO  b
+		WHERE
+				a.LIBRARY_ID = b.LIBRARY_ID
+
+		UNION ALL
+
+		SELECT
+     		kl.LIBRARY_ID 													as LIBRARY_ID
+     		,	3															as ORDER_NUM
+      		,	'-'                                     					as USER_TYPE
+			,	kl.TITLE                                 					as TITLE
+			,	KLB_GET_UNION_CATEGORY(kl.LIBRARY_ID, '1') 					as CATEGORY
+			,	KLB_GET_CODE_NAME('0018', kl.GRADE_FROM)   					as GRADE_FROM
+			,	KLB_GET_CODE_NAME('0018', kl.GRADE_TO)     					as GRADE_TO
+			,	'-'                                        					as SCHOOL_TYPE
+			/*
+			,	'-'															as OFFICE_ID
+			,	'-'                                       					as COMMITTEE
+			*/
+			,	'-'                                        					as SCHOOL_NAME
+			,	'-'                                        					as GRADE
+			,	'-'                                        					as CLASS
+			,	0 															as READ_TIMES
+			,	0 															as DOWNLOAD_TIMES
+  		FROM
+    		(
+    			SELECT
+      				*
+    			FROM KLB_LIBRARY_INFO
+    			WHERE
+      				OPEN_TERM_FROM BETWEEN #ANALYZE_DATE_FROM# AND #ANALYZE_DATE_TO#
+      				OR
+      				OPEN_TERM_TO BETWEEN #ANALYZE_DATE_FROM# AND #ANALYZE_DATE_TO#
+		    ) kl
+  		WHERE
+      		NOT EXISTS
+        		(
+          			SELECT
+           				*
+          			FROM
+                	(
+                		SELECT
+                  			LIBRARY_ID
+                		FROM
+                			KLB_USED_HISTORY
+                		WHERE
+                    		READ_DATE BETWEEN #ANALYZE_DATE_FROM# AND #ANALYZE_DATE_TO#
+ 			            GROUP BY LIBRARY_ID
+                	) uh
+            		WHERE
+              			uh.LIBRARY_ID = kl.LIBRARY_ID
+          		)
+		) c
+
+		ORDER BY
+				c.ORDER_NUM
+			,	c.USER_TYPE
+			<isEqual property="ANALYZE_TYPE_CODE" compareValue="01">
+			,	c.LIBRARY_ID
+			,	c.SCHOOL_TYPE
+			/*
+			,	c.OFFICE_ID
+			,	c.COMMITTEE_ID
+			*/
+			,	c.SCHOOL_NAME
+			,	c.GRADE
+			,	c.CLASS
+			</isEqual>
+			<isEqual property="ANALYZE_TYPE_CODE" compareValue="02">
+			/*
+			,	c.OFFICE_ID
+			,	c.COMMITTEE_ID
+			*/
+			,	c.SCHOOL_TYPE
+			,	c.SCHOOL_NAME
+			,	c.GRADE
+			,	c.CLASS
+			,	c.LIBRARY_ID
+			</isEqual>
+	</select>
+
+
+	<select id="selectRegistCondition" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* analyze.selectRegistCondition */
+	]]>
+		SELECT
+			/*
+				d.OFFICE_ID
+			,	KLB_GET_CODE_NAME('0007', d.COMMITTEE_ID) as COMMITTEE
+			*/
+				KLB_GET_CODE_NAME('0002', e.SCHOOL_TYPE)  as SCHOOL_TYPE
+			,	e.SCHOOL_NAME
+			,	g.CATEGORY_NAME                           as CATEGORY_1
+			,	f.CATEGORY_NAME                           as CATEGORY_2
+			,	KLB_GET_CODE_NAME('0018', d.GRADE_CODE)   as GRADE
+			,	d.REGIST_CNT
+		FROM
+				(
+					SELECT
+						/*
+							a.OFFICE_ID
+						,	a.COMMITTEE_ID
+						*/
+							a.SCHOOL_ID
+						,	b.CATEGORY_ID
+						,	c.CODE    as GRADE_CODE
+						,	COUNT(*)  as REGIST_CNT
+					FROM
+							KLB_LIBRARY_INFO      a
+						,	KLB_LIBRARY_CATEGORY  b
+						,	CODE_MASTER           c
+					WHERE
+							TO_CHAR(a.INS_DATE,'YYYYMMDD')  BETWEEN #ANALYZE_DATE_FROM# AND #ANALYZE_DATE_TO#
+						AND a.LIBRARY_ID                    = b.LIBRARY_ID
+						AND c.CODE_ID                       = '0018'
+						AND c.CODE                          BETWEEN a.GRADE_FROM AND a.GRADE_TO
+					GROUP BY
+						/*
+							a.OFFICE_ID
+						,	a.COMMITTEE_ID
+						*/
+							a.SCHOOL_ID
+						,	b.CATEGORY_ID
+						,	c.CODE
+				)  d
+			,	SCHOOL  e
+			,	KLB_CATEGORY_MASTER  f
+			,	KLB_CATEGORY_MASTER  g
+		WHERE
+				d.SCHOOL_ID          = e.SCHOOL_ID(+)
+			AND #ANALYZE_DATE_FROM#  BETWEEN REPLACE(e.START_DATE(+),'/','')
+										 AND REPLACE(e.END_DATE(+)  ,'/','')
+			AND d.CATEGORY_ID		 = f.CATEGORY_ID
+			AND g.CATEGORY_ID		 = f.PARENT_CATEGORY_ID
+		ORDER BY
+			/*
+				d.OFFICE_ID
+			,	d.COMMITTEE_ID
+			*/
+				e.SCHOOL_TYPE
+			,	d.SCHOOL_ID
+			,	f.DISPLAY_ORDER
+			,	d.GRADE_CODE
+	</select>
+
+
+	<select id="selectLoginCondition" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* analyze.selectLoginCondition */
+	]]>
+
+		SELECT
+			*
+		FROM
+			(
+			SELECT
+					TO_CHAR(TO_DATE(LOGIN_DATE,'YYYYMMDD'),'YYYY.MM.DD')  as LOGIN_DATE
+				,	DECODE(USER_TYPE, 'S', '学習者', '教職員')              as USER_TYPE
+				,   RANK() OVER(PARTITION BY LOGIN_DATE, USER_TYPE ORDER BY INS_DATE) AS RANK
+				,	LOGIN_CNT_00
+				,	LOGIN_CNT_01
+				,	LOGIN_CNT_02
+				,	LOGIN_CNT_03
+				,	LOGIN_CNT_04
+				,	LOGIN_CNT_05
+				,	LOGIN_CNT_06
+				,	LOGIN_CNT_07
+				,	LOGIN_CNT_08
+				,	LOGIN_CNT_09
+				,	LOGIN_CNT_10
+				,	LOGIN_CNT_11
+				,	LOGIN_CNT_12
+				,	LOGIN_CNT_13
+				,	LOGIN_CNT_14
+				,	LOGIN_CNT_15
+				,	LOGIN_CNT_16
+				,	LOGIN_CNT_17
+				,	LOGIN_CNT_18
+				,	LOGIN_CNT_19
+				,	LOGIN_CNT_20
+				,	LOGIN_CNT_21
+				,	LOGIN_CNT_22
+				,	LOGIN_CNT_23
+				,	LOGIN_CNT_ALL
+			FROM
+					KLB_ANALYZE_LOGIN
+			WHERE
+					LOGIN_DATE  BETWEEN #ANALYZE_DATE_FROM#
+									AND #ANALYZE_DATE_TO#
+			ORDER BY
+					LOGIN_DATE
+				,	USER_TYPE
+			)
+		WHERE
+			RANK = 1
+	</select>
+
+</sqlMap>

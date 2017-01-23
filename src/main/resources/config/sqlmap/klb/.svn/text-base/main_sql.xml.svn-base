@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="main">
+	<select id="selectTeacherLectureList" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* main.selectTeacherLectureList, */
+	]]>
+		SELECT
+				st.TEACH_ID
+			,	l.SCHOOL_ID
+			,	l.YEAR
+			,	l.GRADE_CODE
+			,	l.LECTURE_CODE
+			,	l.LECTURE_NAME
+			,	l.LECTURE_NAME_DISPLAY
+			,	l.LECTURE_NAME_REPORT
+			,	l.SUBJECT_CODE
+			,	l.CURRICULUM_CODE
+			,	l.LECTURE_GROUP_CODE
+			,	l.DISPLAY_ORDER
+			,   (SELECT CODE_NAME FROM KLB_CODE_MASTER WHERE CODE_TYPE_ID = 'C004' AND CODE = l.GRADE_CODE) GRADE_NAME
+		FROM
+					TKS_STAFF_LECTURE_BASE slb
+			JOIN
+					LECTURE l
+				ON
+					l.LECTURE_CODE = slb.LECTURE_CODE
+				AND l.GRADE_CODE = slb.GRADE_CODE
+				AND	l.YEAR = slb.YEAR
+				AND	l.SCHOOL_ID = slb.SCHOOL_ID
+			LEFT JOIN
+					TKS_STAFF_TEACH st
+				ON
+					l.LECTURE_CODE = st.LECTURE_CODE
+				AND l.GRADE_CODE = st.GRADE_CODE
+				AND	l.YEAR = st.YEAR
+				AND	l.SCHOOL_ID = st.SCHOOL_ID
+				AND	slb.STAFF_ID = st.STAFF_ID
+		WHERE
+					slb.STAFF_ID = #AID#
+				<isNotEmpty property="paramYEAR">
+					AND	slb.YEAR = #paramYEAR#
+				</isNotEmpty>
+				<isEmpty property="paramYEAR">
+					AND	slb.YEAR = #YEAR#
+				</isEmpty>
+
+				AND	slb.SCHOOL_ID = #SCH_CD#
+		ORDER BY
+				l.DISPLAY_ORDER, l.LECTURE_NAME_DISPLAY
+	</select>
+
+	<select id="selectTeacherYearList" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* main.selectTeacherYearList, */
+	]]>
+		SELECT DISTINCT YEAR
+			 FROM STAFF_LECTURE
+			WHERE SCHOOL_ID = #SCH_CD#
+			  AND STAFF_ID = #AID#
+		ORDER BY YEAR
+	</select>
+
+	<select id="selectStudentTimeTableList" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+
+   SELECT   /* main.selectStudentTimeTableList,*/
+        D.GRADE_CODE     ,
+        SLS.GRADE_CLASS_ID     ,
+        '' AS NAME_KANA     ,
+        SLS.SCHOOL_ID     ,
+        SLS.YEAR     ,
+        SLS.PLURAL_CLASS_ID     ,
+        SLS.GRADE_CLASS_ID     ,
+        SLS.LECTURE_CODE     ,
+        SLS.STAFF_ID     ,
+        SLS.STUDENT_LOGIN_ID     ,
+        SLS.STUDENT_ID     ,
+        REPLACE(TT.SCHEDULE_DATE,
+        '/',
+        '') AS SCHEDULE_DATE     ,
+        TO_CHAR(TT.SCHEDULE_ID) AS SCHEDULE_ID         ,
+        TT.PERIOD_ID     ,
+        TT.TEACH_ID     ,
+        D.CURRICULUM_CODE     ,
+        D.CURRICULUM_NAME     ,
+        L.LECTURE_NAME_DISPLAY     ,
+        (SELECT max(NAME) FROM USER_VIEW WHERE AID = SLS.STAFF_ID AND TO_CHAR(SYSDATE, 'YYYY/MM/DD') BETWEEN START_DATE AND END_DATE) AS TEACHER_NAME
+    FROM
+        TKS_STAFF_LECTURE_STUDENT SLS     ,
+        TKS_TEACH_TIMETABLE   TT     ,
+        LECTURE L                  ,
+        ( SELECT
+            ST.TEACH_ID         ,
+            C.CURRICULUM_CODE         ,
+            C.CURRICULUM_NAME         ,
+            ST.GRADE_CODE         ,
+            ST.LECTURE_CODE
+        FROM
+            TKS_STAFF_TEACH ST         ,
+            CURRICULUM   C
+        WHERE  ST.SCHOOL_ID = #SCH_CD#
+	        AND  ST.YEAR  = #YEAR#
+	        AND  ST.GRADE_CODE = #GLOBAL_GRADE_CODE#
+            AND  ST.SCHOOL_ID    = C.SCHOOL_ID
+            AND  ST.YEAR     = C.YEAR
+            AND  ST.GRADE_CODE   = C.GRADE_CODE
+            AND  ST.CURRICULUM_CODE  = C.CURRICULUM_CODE      )            D
+    WHERE 1=1
+        AND SLS.STUDENT_LOGIN_ID  =  #USER_ID#
+        AND L.SCHOOL_ID =  #SCH_CD#
+        AND L.YEAR =     #YEAR#
+        AND L.GRADE_CODE = #GLOBAL_GRADE_CODE#
+		AND L.SCHOOL_ID = TT.SCHOOL_ID
+        AND L.CURRICULUM_CODE=D.CURRICULUM_CODE
+        AND L.GRADE_CODE = D.GRADE_CODE
+        AND L.LECTURE_CODE = D.LECTURE_CODE
+        AND SLS.YEAR     = TT.YEAR
+        AND SLS.PLURAL_CLASS_ID   = TT.PLURAL_CLASS_ID
+        AND SLS.GRADE_CLASS_ID   = TT.GRADE_CLASS_ID
+        AND SLS.LECTURE_CODE   = TT.LECTURE_CODE
+        AND SLS.STAFF_ID    = TT.STAFF_ID
+        AND TO_DATE(TT.SCHEDULE_DATE, 'YYYY/MM/DD') BETWEEN TO_DATE( #START_DATE#, 'YYYY/MM/DD') AND TO_DATE(#END_DATE#, 'YYYY/MM/DD')
+        AND D.TEACH_ID     = TT.TEACH_ID
+
+	</select>
+	<select id="selectLectureName" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	SELECT NVL(LECTURE_NAME_DISPLAY,' ') AS LECTURE_NAME
+	FROM LECTURE
+	WHERE SCHOOL_ID = #SCH_CD#
+	  AND YEAR = #YEAR#
+	  AND GRADE_CODE = #GRADE_CODE#
+	  AND LECTURE_CODE = #LECTURE_CODE#
+
+	</select>
+
+
+	<select id="selectStudentClassInfo" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+	/*selectStudentClassInfo*/
+	]]>
+		 SELECT GC.GRADE_CODE,
+	           GC.GRADE_CLASS_ID
+	      FROM STUDENT_CLASS SC ,
+	          GRADE_CLASS GC
+	      WHERE SC.STUDENT_ID = (SELECT AID
+								    FROM
+								        USER_VIEW
+								    WHERE
+								        LOGIN_ID =  #USER_ID#
+										AND SCHOOL_ID = SC.SCHOOL_ID
+										AND USER_TYPE = 'S'
+								        AND TO_CHAR(SYSDATE,'YYYY/MM/DD') BETWEEN START_DATE AND END_DATE
+								        )
+	        AND SC.SCHOOL_ID=#SCH_CD#
+	        AND SC.YEAR= #YEAR#
+	        AND SC.SCHOOL_ID = GC.SCHOOL_ID
+	        AND SC.YEAR = GC.YEAR
+	        AND SC.GRADE_CLASS_ID = GC.GRADE_CLASS_ID
+<!-- 	        AND SC.START_DATE <![CDATA[ <= ]]> TO_CHAR(SYSDATE,'YYYY/MM/DD') -->
+	        AND TO_CHAR(SYSDATE,'YYYY/MM/DD') BETWEEN SC.START_DATE AND SC.END_DATE
+			GROUP BY GC.GRADE_CODE, GC.GRADE_CLASS_ID
+	</select>
+
+
+
+
+
+	<select id="selectStudentNewAllCnt" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* main.selectStudentNewAllCnt, */
+	]]>
+		  SELECT
+		        COUNT(*)   AS CNT
+		    FROM
+		        TKS_TEST_APPLY A,
+		        TKS_ONLINE_TEST_DO B
+		    WHERE
+		        A.ONLINE_TEST_ID = B.ONLINE_TEST_ID
+		        AND A.ONLINE_TEST_SEQ = B.ONLINE_TEST_SEQ
+		        AND A.STUDENT_LOGIN_ID =  #USER_ID#
+		        AND A.APPLY_STATUS_CODE = '1'
+		        AND B.TEST_STATUS_CODE IN (
+		            '1','2'
+		        )
+		        AND (
+		            B.ON_TEST_YN = 'N'
+		            AND OFF_START_DATETIME <![CDATA[ <= ]]> SYSDATE
+		            AND OFF_END_DATETIME <![CDATA[ > ]]> SYSDATE
+		        )
+		union all
+		          SELECT
+		        COUNT(*)  AS CNT
+		    FROM
+		        TKS_EXERCISE_SUBMIT A,
+		        TKS_EXERCISE_DO B
+		    WHERE
+		        A.STUDENT_LOGIN_ID =  #USER_ID#
+		        AND A.SUBMIT_TYPE_CODE = '2'
+		        AND B.SUBMIT_START_DATETIME <![CDATA[ <= ]]> SYSDATE
+		        AND (
+		            B.SUBMIT_END_DATETIME <![CDATA[ > ]]> SYSDATE
+		            OR B.ADDSUBMIT_END_DATETIME <![CDATA[ > ]]> SYSDATE
+		        )
+		        AND A.EXERCISE_ID = B.EXERCISE_ID
+		        AND A.TEACH_ID = B.TEACH_ID
+		        AND A.SCHEDULE_ID = B.SCHEDULE_ID
+		        AND A.LECTURE_CONTENTS_ID = B.LECTURE_CONTENTS_ID
+		union all
+		          SELECT
+		        COUNT(*)  AS CNT
+		    FROM
+		        TKS_FORUM_JOIN A,
+		        TKS_FORUM_DO B
+		    WHERE
+		        A.STUDENT_LOGIN_ID =  #USER_ID#
+		        AND A.JOIN_YN = 'N'
+		        AND B.START_DATETIME <![CDATA[ <= ]]> SYSDATE
+		        AND (
+		            B.END_DATETIME <![CDATA[ > ]]> SYSDATE
+		            OR B.ADD_END_DATETIME <![CDATA[ > ]]> SYSDATE
+		        )
+		        AND A.FORUM_ID = B.FORUM_ID
+		        AND A.TEACH_ID = B.TEACH_ID
+		        AND A.GRADE_CLASS_ID = B.GRADE_CLASS_ID
+		        AND A.PLURAL_CLASS_ID = B.PLURAL_CLASS_ID
+		  union all
+		  SELECT SUM(CNT) AS CNT
+			FROM (
+			  SELECT
+			      COUNT(*)  AS CNT
+			  FROM
+			      TKS_TEACH_TIMETABLE TTT,
+			      TKS_TEACH_CONTENTS TTC,
+			      TKS_CONTENTS TC ,
+			      LECTURE C
+			  WHERE
+			      TTT.SCHEDULE_ID = TTC.SCHEDULE_ID
+			      AND TTT.SCHOOL_ID = #SCH_CD#
+			      AND TTT.YEAR = #YEAR#
+			      AND TTT.GRADE_CODE =  #GLOBAL_GRADE_CODE#
+			      AND TTT.YEAR=TTC.YEAR
+			      AND TTT.SCHOOL_ID = TTC.SCHOOL_ID
+			      AND TTC.CONTENTS_ID = TC.CONTENTS_ID
+			      AND TTT.YEAR=TC.YEAR
+			      AND TTT.SCHOOL_ID = TC.SCHOOL_ID
+			      AND TTT.GRADE_CODE = TC.GRADE_CODE
+			      AND C.CURRICULUM_CODE = TC.CURRICULUM_CODE
+			      AND C.GRADE_CODE = TTT.GRADE_CODE
+			      AND C.SCHOOL_ID = TTT.SCHOOL_ID
+			      AND C.YEAR =  TTT.YEAR
+			      AND C.LECTURE_CODE = TC.LECTURE_CODE
+			      AND TTT.SCHEDULE_DATE = TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+<!-- 			 UNION ALL -->
+<!-- 			 SELECT -->
+<!-- 			     COUNT(*)   AS CNT     -->
+<!-- 			  FROM -->
+<!-- 			      TKS_CLASSROOM_STUDENT TCS, -->
+<!-- 			      TKS_CLASSROOM_LECTURE TCL, -->
+<!-- 			      TKS_CLASSROOM_CONTENTS TCC, -->
+<!-- 			      TKS_CONTENTS TC , -->
+<!-- 			      LECTURE C                  -->
+<!-- 			  WHERE -->
+<!-- 			      TCS.CR_LECTURE_ID = TCL.CR_LECTURE_ID                -->
+<!-- 			      AND TCS.CR_LECTURE_ID = TCC.CR_LECTURE_ID                 -->
+<!-- 			      AND TCC.CONTENTS_ID = TC.CONTENTS_ID                -->
+<!-- 			      AND TCC.CONTENTS_DIVISION ='C'                           -->
+<!-- 			      AND TCS.STUDENT_LOGIN_ID =  #USER_ID# -->
+<!-- 			      AND C.CURRICULUM_CODE = TC.CURRICULUM_CODE                                                           -->
+<!-- 			      AND C.GRADE_CODE = TC.GRADE_CODE                            -->
+<!-- 			      AND C.SCHOOL_ID = TC.SCHOOL_ID                       -->
+<!-- 			      AND C.YEAR =  TC.YEAR                           -->
+<!-- 			      AND C.LECTURE_CODE = TC.LECTURE_CODE   -->
+<!-- 			      AND SYSDATE BETWEEN TCL.START_DATETIME AND TCL.END_DATETIME -->
+			)
+
+	</select>
+</sqlMap>
